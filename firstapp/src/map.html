@@ -1,0 +1,116 @@
+<!-- Api key =AIzaSyAGaC_4sNZ3KV4FkBCedRey4IuqGEnBEnw -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <div id="mapholder">
+        <form action="/cumap" method="POST">
+          <label for="coords"><b>Coords</b></label>
+
+            <input type="submit" onclick="getLocation();" name="coords" placeholder="Get Location" value= coords
+            />
+        </form>
+    </div>
+
+    <script>
+        var x = document.getElementById("mapholder");
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+                navigator.geolocation.getCurrentPosition(setCoords);
+
+            } else {
+                x.innerHTML = "Geolocation is not supported by this browser.";
+            }
+        }
+
+        function showPosition(position) {
+            x.innerHTML = "Latitude: " + position.coords.latitude + 
+                        "<br>Longitude: " + position.coords.longitude;
+        }
+        var coords = {}
+        function setCoords(position){
+          var coords = {Latitude: position.coords.latitude , Longitude: position.coords.longitude};
+        }
+    </script>
+</head>
+  <div>
+    <title>Map Bounds Restriction</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <!-- jsFiddle will insert css and js -->
+  </div>
+  <body>
+    <div id="map"></div>
+
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGaC_4sNZ3KV4FkBCedRey4IuqGEnBEnw&callback=initMap&libraries=&v=weekly"
+      async
+    ></script>
+  </body>
+</html>
+
+<style type="text/css">
+
+  #map {
+  height: 100%;
+  }
+
+  /* Optional: Makes the sample page fill the window. */
+  html,
+  body {
+  height: 70%;
+  margin: 150px 30px 20px 30px; 
+  padding: 0;
+  }
+</style>
+
+<script>
+  let map;
+      const Chula_bounds = {
+          north: 13.749768,
+          south: 13.728090,
+          west: 100.520434,
+          east: 100.540518,
+        };
+      const Center = { lat: 13.738762, lng: 100.529654 };
+
+      function initMap() {
+        const TrueCoffee = { lat : 13.735997, lng : 100.532349}
+
+        const map = new google.maps.Map(document.getElementById("map"), {
+          center: TrueCoffee,
+          restriction: {
+            latLngBounds: Chula_bounds,
+            strictBounds: false,
+          },
+          zoom: 17,
+        });
+        const contentString = '<div id="content">' +
+          '<div id="siteNotice">' +
+          "</div>" +
+          '<h1 id="firstHeading" class="firstHeading">True Coffee</h1>' +
+          '<div id="bodyContent">' +           
+          "<p>Take me to this place</p>" + 
+          '<p><a href="https://www.google.com/maps/dir/13.7227798,100.5407928/True+Coffee,+254+Phayathai+Rd,+Pathum+Wan,+Pathum+Wan+District,+Bangkok+10330/@13.7280181,100.5257512,15z/data=!3m1!4b1!4m9!4m8!1m1!4e1!1m5!1m1!1s0x30e29ed50c9c1569:0x85be22c42bbb9a43!2m2!1d100.5321632!2d13.7361227">' +
+          "Take me there</a> " +
+          "</p>" +
+          "</div>" +
+          "</div>";
+      
+        const infowindow = new google.maps.InfoWindow({
+          content: contentString,
+          maxWidth: 200,
+        });
+        const marker = new google.maps.Marker({
+          position: TrueCoffee,
+          map,
+          title: "True Coffee",
+        });
+        marker.addListener("click", () => {
+          infowindow.open(map, marker);
+        });
+      }
+      
+</script>
