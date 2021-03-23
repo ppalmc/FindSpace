@@ -36,7 +36,7 @@ app.use(passport.session());
 app.use(flash());
 
 app.get("/", (req, res) => {
-  res.render("index");
+  res.render("index.ejs");
 });
 
 app.get("/users/register", checkAuthenticated, (req, res) => {
@@ -49,10 +49,21 @@ app.get("/users/login", checkAuthenticated, (req, res) => {
   res.render("login.ejs");
 });
 
+app.get("/users/forgotPassword", checkAuthenticated, (req, res) => {
+  res.render("forgotPassword.ejs");
+});
+
 app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
   console.log(req.isAuthenticated());
-  res.render("dashboard", { user: req.user.name });
+  res.render("dashboard.ejs", { user: req.user.name });
 });
+
+app.get("/users/profile", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  res.render("profile.ejs", { user: req.user.name, email: req.user.email });
+});
+
+
 
 app.get("/users/logout", (req, res) => {
   req.logout();
