@@ -16,7 +16,7 @@ initializePassport(passport);
 // Middleware
 
 // Parses details from a form
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 app.use(
