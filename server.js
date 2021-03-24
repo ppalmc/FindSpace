@@ -63,7 +63,20 @@ app.get("/users/profile", checkNotAuthenticated, (req, res) => {
   res.render("profile.ejs", { user: req.user.name, email: req.user.email });
 });
 
+app.get("/users/profileManage/changeEmail", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  res.render("profileManage/changeEmail.ejs");
+});
 
+app.get("/users/profileManage/changePassword", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  res.render("profileManage/changePassword.ejs");
+});
+
+app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  res.render("profileManage/changeUsername.ejs");
+});
 
 app.get("/users/logout", (req, res) => {
   req.logout();
