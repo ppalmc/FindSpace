@@ -8,31 +8,27 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Change Email</title>
+    <title>Change User Type</title>
   </head>
   <body>
-    <h1>Change Email</h1>
+    <h1>Change User Type</h1>
 
     <ul>
       <% if (typeof errors != 'undefined') { %> <% errors.forEach(error => { %>
       <li><%= error.message %></li>
       <% }) %> <% } %>
     </ul>
-    <form action="/users/profileManage/changeEmail" method="POST">
-      <div>
-        <input
-          type="email"
-          id="newEmail"
-          name="newEmail"
-          placeholder="New Email"
-          required
-        />
-      </div>
-      
-      <div>
-        <input type="submit" value="Confirm" />
-      </div>
-
+    <form action="/users/profileManage/changeType" method="POST">
+        <div>
+            <select name="type" id="type">
+                <option value="user">Normal User</option>
+                <option value="premium">Premium User</option>
+                <option value="admin">Administrator</option>
+            </select>
+        </div>
+        <div>
+            <input type="submit" value="Confirm" />
+        </div>
     </form>
   </body>
 </html>

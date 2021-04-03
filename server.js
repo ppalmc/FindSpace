@@ -6,6 +6,7 @@ const flash = require("express-flash");
 const session = require("express-session");
 require("dotenv").config();
 const app = express();
+const axios = require("axios")
 
 const PORT = process.env.PORT || 3000;
 
@@ -78,9 +79,264 @@ app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res)
   res.render("profileManage/changeUsername.ejs");
 });
 
+app.get("/users/profileManage/changetype", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  res.render("profileManage/changeType.ejs");
+});
+
+app.get("/users/profileManage/deleteUser", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  res.render("profileManage/deleteUser.ejs");
+});
+
 app.get("/users/logout", (req, res) => {
   req.logout();
   res.render("index", { message: "You have logged out successfully" });
+});
+
+app.post("/users/forgotPassword", async (req, res) => {
+  let { email, password, password2 } = req.body;
+
+  let errors = [];
+  console.log({
+    email,
+    password,
+    password2
+  });
+  if (!email || !password || !password2) {
+    errors.push({ message: "Please enter all fields" });
+  }
+
+  if (password.length < 6) {
+    errors.push({ message: "Password must be a least 6 characters long" });
+  }
+
+  if (password !== password2) {
+    errors.push({ message: "Passwords do not match" });
+  }
+
+  if (errors.length > 0) {
+    res.render("forgotPassword.ejs", { errors, email, password, password2 });
+  }
+  else{
+      hashedPassword = await bcrypt.hash(password, 10);
+      console.log(hashedPassword);
+      // Validation passed
+  
+      pool.query(
+        `UPDATE users
+          SET password = $1
+          WHERE email = $2`,
+        [hashedPassword, email],
+        (err, results) => {
+          if (err) {
+            throw err;
+          }
+            console.log("reaches here");
+            console.log(results);
+            req.flash("success_msg", "Your password has been updated!");
+            res.redirect("/users/login");
+        }
+      );
+  }
+});
+
+app.post("/users/profileManage/changePassword", async (req, res) => {
+  let { password, password2 } = req.body;
+
+  let errors = [];
+  let email = req.user.email;
+  console.log({
+    password,
+    password2
+  });
+
+  if (!password || !password2) {
+    errors.push({ message: "Please enter all fields" });
+  }
+
+  if (password.length < 6) {
+    errors.push({ message: "Password must be a least 6 characters long" });
+  }
+
+  if (password !== password2) {
+    errors.push({ message: "Passwords do not match" });
+  }
+
+  if (errors.length > 0) {
+    res.render("profileManage/changePassword.ejs", { errors, password, password2 });
+  } 
+  else {
+    hashedPassword = await bcrypt.hash(password, 10);
+    console.log(hashedPassword);
+    // Validation passed
+
+    pool.query(
+      `UPDATE users
+        SET password = $1
+        WHERE email = $2`,
+      [hashedPassword, email],
+      (err, results) => {
+        if (err) {
+          throw err;
+        }
+          console.log("reaches here");
+          console.log(results);
+          req.flash("success_msg", "Your password has been updated!");
+          res.redirect("/users/profile");
+      }
+    );
+  }
+});
+
+app.post("/users/profileManage/changeUsername", async (req, res) => {
+  let { name } = req.body;
+
+  let errors = [];
+  let email = req.user.email;
+  console.log({
+    name
+  });
+
+  if (!name) {
+    errors.push({ message: "Please enter all fields" });
+  }
+
+  if (errors.length > 0) {
+    res.render("profileManage/changeUsername.ejs", { errors, name });
+  } 
+  else {
+    // Validation passed
+    pool.query(
+      `UPDATE users
+        SET name = $1
+        WHERE email = $2`,
+      [name, email],
+      (err, results) => {
+        if (err) {
+          throw err;
+        }
+          console.log("reaches here");
+          console.log(results);
+          req.flash("success_msg", "Your username has been updated!");
+          res.redirect("/users/profile");
+      }
+    );
+  }
+});
+
+app.post("/users/profileManage/changeEmail", async (req, res) => {
+  let { newEmail } = req.body;
+
+  let errors = [];
+  let email = req.user.email;
+  console.log({
+    newEmail
+  });
+
+  if (!newEmail) {
+    errors.push({ message: "Please enter all fields" });
+  }
+
+  if (errors.length > 0) {
+    res.render("profileManage/changeEmail.ejs", { errors, email });
+  } 
+  else {
+    // Validation passed
+    pool.query(
+      `SELECT * FROM users
+        WHERE email = $1`,
+      [email],
+      (err, results) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log(results.rows);
+
+        if (results.rows.length > 0) {
+          return res.render("profileManage/changeEmail", {
+            message: "Email already registered"
+          });
+        } else {
+          pool.query(
+            `UPDATE users
+              SET email = $1
+              WHERE email = $2`,
+            [newEmail, email],
+            (err, results) => {
+              if (err) {
+                throw err;
+              }
+              console.log("reaches here");
+              console.log(results);
+              req.flash("success_msg", "Your email has been updated!");
+              res.redirect("/users/profile");
+            }
+          );
+        }
+      }
+    );
+  }
+});
+app.post("/users/profileManage/changeType", async (req, res) => {
+  let { type } = req.body;
+
+  let email = req.user.email;
+  console.log({
+    type
+  });
+    pool.query(
+      `UPDATE users
+        SET type = $1
+        WHERE email = $2`,
+      [type, email],
+      (err, results) => {
+        if (err) {
+          throw err;
+        }
+        console.log("reaches here");
+        console.log(results);
+        req.flash("success_msg", "Your type has been updated!");
+        res.redirect("/users/profile");
+      }
+    );
+});
+
+app.post("/users/profileManage/deleteUser", async (req, res) => {
+  let { email }= req.body;
+
+  let errors = [];
+  console.log({
+    email
+  });
+  if (!email) {
+    errors.push({ message: "Please enter email" });
+  }
+
+  if (email != req.user.email) {
+    errors.push({ message: "Please enter the correct email" });
+  }
+
+  if (errors.length > 0) {
+    res.render("profileManage/deleteUser.ejs", { errors, password});
+  } 
+  else {
+    req.logout();
+    pool.query(
+      `DELETE FROM users
+        WHERE email = $1`,
+      [email],
+      (err, results) => {
+        if (err) {
+          throw err;
+        }
+          console.log("reaches here");
+          console.log(results);
+          req.flash("success_msg", "Your account has been succesfully deleted.");
+          res.render("index");
+      }
+    );
+  }
 });
 
 app.post("/users/register", async (req, res) => {
@@ -129,10 +385,10 @@ app.post("/users/register", async (req, res) => {
           });
         } else {
           pool.query(
-            `INSERT INTO users (name, email, password)
-                VALUES ($1, $2, $3)
+            `INSERT INTO users (name, email, password, type)
+                VALUES ($1, $2, $3, $4)
                 RETURNING id, password`,
-            [name, email, hashedPassword],
+            [name, email, hashedPassword, 'user'],
             (err, results) => {
               if (err) {
                 throw err;
@@ -140,7 +396,7 @@ app.post("/users/register", async (req, res) => {
               console.log("reaches here");
               console.log(results.rows);
               req.flash("success_msg", "You are now registered. Please log in");
-              res.redirect("/users/login");
+              res.redirect("/users/login");//maybeCHange
             }
           );
         }
