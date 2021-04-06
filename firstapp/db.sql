@@ -2,15 +2,13 @@ CREATE DATABASE findspace;
 
 CREATE TABLE Workspace(
     workspace_id SERIAL PRIMARY KEY,
-    location varchar(255),
-    sname varchar(255),
+    WS_Des varchar(255),
+    WSName varchar(255),
+    WS_lat NUMERIC(10,7),
+    WS_long NUMERIC(10,7),
     wifi boolean,
-    totalSeats INT,
-    ophours varchar(255),
-    occupiedSeats INT,
-    spicture varchar(255),
-    menu varchar(255),
-    poweroutlets boolean
+    totalseats INT,
+    poweroutlets INT
 );
 
 CREATE TABLE Users(
@@ -28,20 +26,18 @@ CREATE TABLE Likes(
 
 -- req.body JSON in postman
 {
-    "location" : "13.790089698,100.98791",
-    "sname" : "True false test",
-    "wifi" : null,
+    "WS_Des" : "such a beautiful place. Full of scumbag",
+    "WSName" : "False Coffee",
+    "WS_lat" : 13.8798710,
+    "WS_long" : 100.9081309,
+    "wifi" : false,
     "totalseats" : 180,
-    "ophours" : null,
-    "occupiedseats" : null,
-    "spicture" : null,
-    "menu" : null,
-    "poweroutlets" : null
+    "poweroutlets" : 1
 }
 
 {
     email : "aungpyae_official@gmail.com",
     uname : "eieizahahaplus",
     password : "blaballba",
-    hasPremium True
+    hasPremium : true
 }
