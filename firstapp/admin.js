@@ -46,7 +46,7 @@ route.get("/workspace/:WorkspaceID", async (req, res) => {
 
 //modify a workspace's WSName
   
-route.put("/workspace/:WorkspaceID", async (req, res) => {
+route.put("/workspace/workspace/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
@@ -62,7 +62,7 @@ route.put("/workspace/:WorkspaceID", async (req, res) => {
 
 //modify a workspace's WS_Des
   
-route.put("/workspace/:WorkspaceID", async (req, res) => {
+route.put("/workspace/WS_Des/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
@@ -78,7 +78,7 @@ route.put("/workspace/:WorkspaceID", async (req, res) => {
 
 //modify a workspace's coordinate
   
-route.put("/workspace/:WorkspaceID", async (req, res) => {
+route.put("/workspace/coordinate/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
@@ -94,7 +94,7 @@ route.put("/workspace/:WorkspaceID", async (req, res) => {
 
 //modify a workspace's totalseats
   
-route.put("/workspace/:WorkspaceID", async (req, res) => {
+route.put("/workspace/totalseats/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
@@ -110,7 +110,7 @@ route.put("/workspace/:WorkspaceID", async (req, res) => {
 
 //modify a workspace's wifi
   
-route.put("/workspace/:WorkspaceID", async (req, res) => {
+route.put("/workspace/wifi/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
@@ -126,7 +126,7 @@ route.put("/workspace/:WorkspaceID", async (req, res) => {
 
 //modify a workspace's poweroutlets
   
-route.put("/workspace/:WorkspaceID", async (req, res) => {
+route.put("/workspace/poweroutlets/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
@@ -154,5 +154,19 @@ route.delete("/workspace/:Workspace_ID", async (req, res) => {
       console.log(err.message);
     }
 });
+
+// delete old feedback record
+route.delete("/givefeedback/:Workspace_ID/:Email", async (req, res) => {
+    try {
+      const { Workspace_ID } = req.params;
+      const deleteWorkspace = await pool.query(
+          "DELETE FROM workspace WHERE Workspace_ID = $1", 
+          [Workspace_ID]
+      );
+      res.json("The workspace was deleted!");
+    } catch (err) {
+      console.log(err.message);
+    }
+  });
 
 module.exports = route
