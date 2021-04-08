@@ -30,6 +30,7 @@ CREATE TABLE Likes(
     "WSName" : "False Coffee",
     "WS_lat" : 13.8798710,
     "WS_long" : 100.9081309,
+    "WS_link" : "Link Krub",
     "wifi" : false,
     "totalseats" : 180,
     "poweroutlets" : 1

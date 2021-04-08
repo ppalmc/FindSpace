@@ -6,10 +6,10 @@ const route = express.Router()
 
 route.post("/workspace", async (req, res) => {
     try {
-      const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
+      const {wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet } = req.body;
       const newWorkspace = await pool.query(
-        "INSERT INTO Workspace (WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *",
-        [WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets]
+        "INSERT INTO Workspace (wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *",
+        [wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet]
       );
       console.log(req.body);
     } catch (err) {
@@ -46,13 +46,13 @@ route.get("/workspace/:WorkspaceID", async (req, res) => {
 
 //modify a workspace's WSName
   
-route.put("/workspace/workspace/:WorkspaceID", async (req, res) => {
+route.put("/workspace/wsname/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
+        const { wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet } = req.body;
         const updateWSName = await pool.query(
         "UPDATE workspace SET WSName = $1 WHERE WorkspaceID = $2",
-        [WSName, WorkspaceID]
+        [wsname, WorkspaceID]
         );
         res.json("The name was updated!");
     } catch (err) {
@@ -65,10 +65,10 @@ route.put("/workspace/workspace/:WorkspaceID", async (req, res) => {
 route.put("/workspace/WS_Des/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
+        const { wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet  } = req.body;
         const updateWS_Des = await pool.query(
         "UPDATE workspace SET WS_Des = $1 WHERE WorkspaceID = $2",
-        [WS_Des, WorkspaceID]
+        [ws_des, WorkspaceID]
         );
         res.json("The WS_Des was updated!");
     } catch (err) {
@@ -81,10 +81,10 @@ route.put("/workspace/WS_Des/:WorkspaceID", async (req, res) => {
 route.put("/workspace/coordinate/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
+        const { wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet } = req.body;
         const updateWS_Des = await pool.query(
         "UPDATE workspace SET WS_lat=$1 and WS_long = $2 WHERE WorkspaceID = $3",
-        [WS_lat, WS_long, WorkspaceID]
+        [ws_lat, ws_long, WorkspaceID]
         );
         res.json("The coordinate was updated!");
     } catch (err) {
@@ -97,10 +97,10 @@ route.put("/workspace/coordinate/:WorkspaceID", async (req, res) => {
 route.put("/workspace/totalseats/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
+        const { wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet } = req.body;
         const updateTotalseats = await pool.query(
         "UPDATE workspace SET totalseats = $1 WHERE WorkspaceID = $2",
-        [totalseats, WorkspaceID]
+        [totalseat, WorkspaceID]
         );
         res.json("The totalseats was updated!");
     } catch (err) {
@@ -113,7 +113,7 @@ route.put("/workspace/totalseats/:WorkspaceID", async (req, res) => {
 route.put("/workspace/wifi/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
+        const { wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet } = req.body;
         const updateWS_Des = await pool.query(
         "UPDATE workspace SET wifi = $1 WHERE WorkspaceID = $2",
         [wifi, WorkspaceID]
@@ -129,10 +129,10 @@ route.put("/workspace/wifi/:WorkspaceID", async (req, res) => {
 route.put("/workspace/poweroutlets/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const { WSName, WS_Des, WS_lat, WS_long, totalseats, wifi , poweroutlets } = req.body;
+        const { wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet } = req.body;
         const updateWS_Des = await pool.query(
         "UPDATE workspace SET poweroutlets = $1 WHERE WorkspaceID = $2",
-        [poweroutlets, WorkspaceID]
+        [poweroutlet, WorkspaceID]
         );
         res.json("The poweroutlets was updated!");
     } catch (err) {
