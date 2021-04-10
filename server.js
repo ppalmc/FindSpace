@@ -3,10 +3,18 @@ const { pool } = require("./dbConfig");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const flash = require("express-flash");
-const session = require("express-session");
-require("dotenv").config();
+// const session = require("express-session");
+// require("dotenv").config();
 const app = express();
-const axios = require("axios")
+
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'prayforchulatinder@gmail.com',
+    pass: 'chulatinder'
+  }
+});
 
 const PORT = process.env.PORT || 3000;
 
@@ -20,34 +28,37 @@ initializePassport(passport);
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
-app.use(
-  session({
-    // Key we want to keep secret which will encrypt all of our information
-    secret: process.env.SESSION_SECRET,
-    // Should we resave our session variables if nothing has changes which we dont
-    resave: false,
-    // Save empty value if there is no vaue which we do not want to do
-    saveUninitialized: false
-  })
-);
+// app.use(
+//   session({
+//     // Key we want to keep secret which will encrypt all of our information
+//     secret: process.env.SESSION_SECRET,
+//     // Should we resave our session variables if nothing has changes which we dont
+//     resave: false,
+//     // Save empty value if there is no vaue which we do not want to do
+//     saveUninitialized: false
+//   })
+// );
 // Funtion inside passport which initializes passport
 app.use(passport.initialize());
 // Store our variables to be persisted across the whole session. Works with app.use(Session) above
 app.use(passport.session());
-app.use(flash());
+// app.use(flash());
 
 app.get("/", (req, res) => {
   res.render("index.ejs");
+  console.log(req.user.email);
 });
 
 app.get("/users/register", checkAuthenticated, (req, res) => {
   res.render("register.ejs");
 });
 
+// app.get("/users/login", checkAuthenticated, (req, res) => {
 app.get("/users/login", checkAuthenticated, (req, res) => {
   // flash sets a messages variable. passport sets the error message
-  console.log(req.session.flash.error);
-  res.render("login.ejs");
+  // console.log(req.session.flash.error);
+  // res.render("login.ejs");
+  res.send("hello world");
 });
 
 app.get("/users/forgotPassword", checkAuthenticated, (req, res) => {
@@ -59,6 +70,25 @@ app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
   res.render("dashboard.ejs", { user: req.user.name });
 });
 
+app.get("/users/location", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  let locationID = req.body;
+  pool.query(
+    `SELECT * FROM Workspace
+      WHERE $1 = WorkspaceID`,
+      [locationID],
+      (err, results) => {
+        if (err) {
+          throw err;
+        }
+          console.log("reaches here");
+          console.log(results);
+          res.render("location.ejs", { locationName: results.WSname, lat: results.WS_lat, long: results.WS_long, outlet: results.PowerOutlet, wifi: results.Wifi  });
+      }
+  )
+});
+
+
 app.get("/users/profile", checkNotAuthenticated, (req, res) => {
   // console.log(req.isAuthenticated());
   res.render("profile.ejs", { user: req.user.name, email: req.user.email });
@@ -69,9 +99,14 @@ app.get("/users/profileManage/changeEmail", checkNotAuthenticated, (req, res) =>
   res.render("profileManage/changeEmail.ejs");
 });
 
-app.get("/users/profileManage/changePassword", checkNotAuthenticated, (req, res) => {
+app.get("/users/profileManage/changePassword", (req, res) => {
   // console.log(req.isAuthenticated());
-  res.render("profileManage/changePassword.ejs");
+  if (req.isAuthenticated()) {
+    res.render("profileManage/changePassword.ejs");
+  }
+  else {
+    
+  }
 });
 
 app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res) => {
@@ -95,49 +130,33 @@ app.get("/users/logout", (req, res) => {
 });
 
 app.post("/users/forgotPassword", async (req, res) => {
-  let { email, password, password2 } = req.body;
+  let { email } = req.body;
 
   let errors = [];
   console.log({
-    email,
-    password,
-    password2
+    email
   });
-  if (!email || !password || !password2) {
-    errors.push({ message: "Please enter all fields" });
-  }
-
-  if (password.length < 6) {
-    errors.push({ message: "Password must be a least 6 characters long" });
-  }
-
-  if (password !== password2) {
-    errors.push({ message: "Passwords do not match" });
+  if (!email) {
+    errors.push({ message: "Please enter your email"});
   }
 
   if (errors.length > 0) {
-    res.render("forgotPassword.ejs", { errors, email, password, password2 });
+    res.render("forgotPassword.ejs", { errors, email});
   }
   else{
-      hashedPassword = await bcrypt.hash(password, 10);
-      console.log(hashedPassword);
       // Validation passed
-  
-      pool.query(
-        `UPDATE users
-          SET password = $1
-          WHERE email = $2`,
-        [hashedPassword, email],
-        (err, results) => {
-          if (err) {
-            throw err;
-          }
-            console.log("reaches here");
-            console.log(results);
-            req.flash("success_msg", "Your password has been updated!");
-            res.redirect("/users/login");
+      transporter.sendMail({from:"prayforchulatinder@gmail.com",
+                            to: email,
+                            subject:"Findspace Password reset",
+                            html: '<h1>Click the link below you stupid</h1><a href="/users/profileManage/changePassword?email="+email>LINK</a>'
+                          }, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+          res.redirect("/users/login");
         }
-      );
+      });
   }
 });
 

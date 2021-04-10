@@ -50,17 +50,17 @@ function initialize(passport) {
   // object should be stored in the session. The result of the serializeUser method is attached
   // to the session as req.session.passport.user = {}. Here for instance, it would be (as we provide
   //   the user id as the key) req.session.passport.user = {id: 'xyz'}
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user, done) => done(null, user.email));
 
   // In deserializeUser that key is matched with the in memory array / database or any data resource.
   // The fetched object is attached to the request object as req.user
 
-  passport.deserializeUser((id, done) => {
-    pool.query(`SELECT * FROM users WHERE id = $1`, [id], (err, results) => {
+  passport.deserializeUser((email, done) => {
+    pool.query(`SELECT * FROM users WHERE email = $1`, [email], (err, results) => {
       if (err) {
         return done(err);
       }
-      console.log(`ID is ${results.rows[0].id}`);
+      console.log(`ID is ${results.rows[0].email}`);
       return done(null, results.rows[0]);
     });
   });
