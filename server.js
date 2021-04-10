@@ -3,8 +3,8 @@ const { pool } = require("./dbConfig");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const flash = require("express-flash");
-// const session = require("express-session");
-// require("dotenv").config();
+const session = require("express-session");
+require("dotenv").config();
 const app = express();
 
 var nodemailer = require('nodemailer');
@@ -28,37 +28,36 @@ initializePassport(passport);
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
-// app.use(
-//   session({
-//     // Key we want to keep secret which will encrypt all of our information
-//     secret: process.env.SESSION_SECRET,
-//     // Should we resave our session variables if nothing has changes which we dont
-//     resave: false,
-//     // Save empty value if there is no vaue which we do not want to do
-//     saveUninitialized: false
-//   })
-// );
+app.use(
+  session({
+    // Key we want to keep secret which will encrypt all of our information
+    secret: process.env.SESSION_SECRET,
+    // Should we resave our session variables if nothing has changes which we dont
+    resave: false,
+    // Save empty value if there is no vaue which we do not want to do
+    saveUninitialized: false
+  })
+);
 // Funtion inside passport which initializes passport
 app.use(passport.initialize());
 // Store our variables to be persisted across the whole session. Works with app.use(Session) above
 app.use(passport.session());
-// app.use(flash());
+app.use(flash());
 
 app.get("/", (req, res) => {
   res.render("index.ejs");
-  console.log(req.user.email);
 });
 
 app.get("/users/register", checkAuthenticated, (req, res) => {
   res.render("register.ejs");
+
 });
 
 // app.get("/users/login", checkAuthenticated, (req, res) => {
 app.get("/users/login", checkAuthenticated, (req, res) => {
   // flash sets a messages variable. passport sets the error message
   // console.log(req.session.flash.error);
-  // res.render("login.ejs");
-  res.send("hello world");
+  res.render("login.ejs");
 });
 
 app.get("/users/forgotPassword", checkAuthenticated, (req, res) => {
@@ -191,7 +190,7 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
     // Validation passed
 
     pool.query(
-      `UPDATE users
+      `UPDATE public."user"
         SET password = $1
         WHERE email = $2`,
       [hashedPassword, email],
@@ -227,7 +226,7 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
   else {
     // Validation passed
     pool.query(
-      `UPDATE users
+      `UPDATE public."user"
         SET name = $1
         WHERE email = $2`,
       [name, email],
@@ -305,8 +304,8 @@ app.post("/users/profileManage/changeType", async (req, res) => {
     type
   });
     pool.query(
-      `UPDATE users
-        SET type = $1
+      `UPDATE public."user"
+        SET utype = $1
         WHERE email = $2`,
       [type, email],
       (err, results) => {
@@ -342,7 +341,7 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
   else {
     req.logout();
     pool.query(
-      `DELETE FROM users
+      `DELETE FROM public."user"
         WHERE email = $1`,
       [email],
       (err, results) => {
@@ -389,7 +388,7 @@ app.post("/users/register", async (req, res) => {
     console.log(hashedPassword);
     // Validation passed
     pool.query(
-      `SELECT * FROM users
+      `SELECT * FROM public."user"
         WHERE email = $1`,
       [email],
       (err, results) => {
@@ -404,9 +403,9 @@ app.post("/users/register", async (req, res) => {
           });
         } else {
           pool.query(
-            `INSERT INTO users (name, email, password, type)
+            `INSERT INTO public."user" (uname, email, pwd, utype)
                 VALUES ($1, $2, $3, $4)
-                RETURNING id, password`,
+                RETURNING email, pwd`,
             [name, email, hashedPassword, 'user'],
             (err, results) => {
               if (err) {
@@ -415,7 +414,7 @@ app.post("/users/register", async (req, res) => {
               console.log("reaches here");
               console.log(results.rows);
               req.flash("success_msg", "You are now registered. Please log in");
-              res.redirect("/users/login");//maybeCHange
+              res.redirect("/users/login");
             }
           );
         }
