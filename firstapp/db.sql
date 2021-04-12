@@ -42,3 +42,19 @@ CREATE TABLE Likes(
     password : "blaballba",
     hasPremium : true
 }
+
+-- Arrange WS order by crowdednessStatus
+SELECT R1.workspaceid, R2.workspaceid, R1.ppl_in_WS, R2.totalseat, R1.ppl_in_WS/R2.totalseat AS crowdedness,
+CASE WHEN R1.ppl_in_WS/R2.totalseat<=0.25 THEN 1
+WHEN R1.ppl_in_WS/R2.totalseat>0.25 AND R1.ppl_in_WS/R2.totalseat <= 0.5 THEN 2
+ELSE 3
+END AS crowdednessStatus
+FROM ( SELECT DISTINCT workspaceid, SUM(H.num_in_out) AS ppl_in_WS 
+	  FROM hardware H 
+	  GROUP BY workspaceid) 
+	  AS R1,
+	  
+	  ( SELECT DISTINCT workspaceid, WS.totalseat 
+	   FROM workspace WS) AS R2 
+WHERE R1.workspaceid = R2.workspaceid 
+ORDER BY crowdednessStatus ASC

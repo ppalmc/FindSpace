@@ -22,7 +22,7 @@ route.post("/workspace", async (req, res) => {
 route.get("/workspace", async (req, res) => {
     try {
       const allWorkspace = await pool.query("SELECT * FROM workspace");
-      res.json(allWorkspace.rows);
+      res.json(allWorkspace);
     } catch (err) {
       console.error(err.message);
     }
@@ -37,7 +37,6 @@ route.get("/workspace/:WorkspaceID", async (req, res) => {
           "SELECT * FROM workspace WHERE WorkspaceID = $1", 
           [WorkspaceID]
       );
-  
       res.json(aWorkspace.rows[0]);
     } catch (err) {
       console.error(err.message);
@@ -155,18 +154,29 @@ route.delete("/workspace/:Workspace_ID", async (req, res) => {
     }
 });
 
-// delete old feedback record
-route.delete("/givefeedback/:Workspace_ID/:Email", async (req, res) => {
-    try {
-      const { Workspace_ID } = req.params;
-      const deleteWorkspace = await pool.query(
-          "DELETE FROM workspace WHERE Workspace_ID = $1", 
-          [Workspace_ID]
-      );
-      res.json("The workspace was deleted!");
-    } catch (err) {
-      console.log(err.message);
-    }
-  });
 
+
+// add new photo record to a workspace
+
+
+// update photo1
+
+
+// update photo2
+
+
+// update photo3
+
+
+// add new menu record to a workspace
+
+
+// update menu1
+
+
+// update menu2
+
+
+// update menu3
+  
 module.exports = route
