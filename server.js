@@ -73,8 +73,8 @@ app.get("/users/location", checkNotAuthenticated, (req, res) => {
   // console.log(req.isAuthenticated());
   let locationID = req.body;
   pool.query(
-    `SELECT * FROM Workspace
-      WHERE $1 = WorkspaceID`,
+    `SELECT * FROM public."workspace"
+      WHERE $1 = workspaceID`,
       [locationID],
       (err, results) => {
         if (err) {
@@ -82,15 +82,48 @@ app.get("/users/location", checkNotAuthenticated, (req, res) => {
         }
           console.log("reaches here");
           console.log(results);
-          res.render("location.ejs", { locationName: results.WSname, lat: results.WS_lat, long: results.WS_long, outlet: results.PowerOutlet, wifi: results.Wifi  });
+          res.render("location.ejs", { name: results.wsname, des: results.ws_des, lat: results.ws_lat, long: results.ws_long, seat : result.totalseat, outlet: results.poweroutlet, wifi: results.wifi  });
       }
   )
 });
 
+app.get("/users/home", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  // name: results.wsname, des: results.ws_des, lat: results.ws_lat, long: results.ws_long, seat : result.totalseat, outlet: results.poweroutlet, wifi: results.wifi
+  pool.query(
+    `SELECT * FROM public."workspace"`,
+      (err, results) => {
+        if (err) {
+          throw err;
+        }
+        console.log("reaches here");
+        console.log(iterativeQuery(results.rowCount));
+        res.render("home.ejs", { location: iterativeQuery(results.rowCount), count: results.rowCount });
+      }
+  )
+});
+
+app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  pool.query(
+    `SELECT * FROM public."favorite"
+      WHERE email = $1`,
+      [req.user.email],
+      (err, results) => {
+        if (err) {
+          throw err;
+        }
+          console.log("reaches here");
+          console.log(results.rows);
+          console.log(results.rowCount);
+          res.render("favorite.ejs", { location: iterativeQuery(), count: results.rowCount });
+      }
+  )
+});
 
 app.get("/users/profile", checkNotAuthenticated, (req, res) => {
   // console.log(req.isAuthenticated());
-  res.render("profile.ejs", { user: req.user.name, email: req.user.email });
+  res.render("profile.ejs", { user: req.user.uname, email: req.user.email });
 });
 
 app.get("/users/profileManage/changeEmail", checkNotAuthenticated, (req, res) => {
@@ -191,7 +224,7 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
 
     pool.query(
       `UPDATE public."user"
-        SET password = $1
+        SET pwd = $1
         WHERE email = $2`,
       [hashedPassword, email],
       (err, results) => {
@@ -227,7 +260,7 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
     // Validation passed
     pool.query(
       `UPDATE public."user"
-        SET name = $1
+        SET uname = $1
         WHERE email = $2`,
       [name, email],
       (err, results) => {
@@ -262,9 +295,9 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
   else {
     // Validation passed
     pool.query(
-      `SELECT * FROM users
+      `SELECT * FROM public."user"
         WHERE email = $1`,
-      [email],
+      [newEmail],
       (err, results) => {
         if (err) {
           console.log(err);
@@ -272,12 +305,13 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
         console.log(results.rows);
 
         if (results.rows.length > 0) {
+          console.log("Email already registered");
           return res.render("profileManage/changeEmail", {
             message: "Email already registered"
           });
         } else {
           pool.query(
-            `UPDATE users
+            `UPDATE public."user"
               SET email = $1
               WHERE email = $2`,
             [newEmail, email],
@@ -287,6 +321,7 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
               }
               console.log("reaches here");
               console.log(results);
+              // user.email = newEmail;
               req.flash("success_msg", "Your email has been updated!");
               res.redirect("/users/profile");
             }
@@ -444,6 +479,28 @@ function checkNotAuthenticated(req, res, next) {
     return next();
   }
   res.redirect("/users/login");
+}
+
+function iterativeQuery(req) {
+  var str = '';
+  
+  pool.query(
+  `SELECT * FROM public."workspace"`,
+    (err, results) => {
+      if (err) {
+        throw err;
+      }
+      for(x = 0; x < req; x++){
+        console.log('cat');
+        console.log(x);
+        var result = Object.values(results.rows[x]);
+        console.log(result);
+        str = str + '\n' + '<p>'+result[0]+' '+result[1]+' '+result[2]+' '+result[3]+' '+result[4]+' '+result[5]+' '+result[6]+'</p>'+'</br>'+'\n';
+        console.log(str);
+      }
+    }
+  )
+  return str;
 }
 
 app.listen(PORT, () => {
