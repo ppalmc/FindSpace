@@ -28,20 +28,6 @@ route.get("/workspace", async (req, res) => {
     }
 });
   
-//get a workspace
-  
-route.get("/workspace/:WorkspaceID", async (req, res) => {
-    try {
-      const { WorkspaceID } = req.params;
-      const aWorkspace = await pool.query(
-          "SELECT * FROM workspace WHERE WorkspaceID = $1", 
-          [WorkspaceID]
-      );
-      res.json(aWorkspace.rows[0]);
-    } catch (err) {
-      console.error(err.message);
-    }
-});
 
 //modify a workspace's WSName
   
@@ -98,7 +84,7 @@ route.put("/workspace/totalseats/:WorkspaceID", async (req, res) => {
         const { WorkspaceID } = req.params;
         const { wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet } = req.body;
         const updateTotalseats = await pool.query(
-        "UPDATE workspace SET totalseats = $1 WHERE WorkspaceID = $2",
+        "UPDATE workspace SET totalseat = $1 WHERE WorkspaceID = $2",
         [totalseat, WorkspaceID]
         );
         res.json("The totalseats was updated!");

@@ -70,6 +70,34 @@ app.get("/showpic/:WorkspaceID", async (req, res) => {
   }
 });
 
+// show ophours of a workspace
+app.get("/showmenu/:WorkspaceID", async (req, res) => {
+  
+  try {
+    const { WorkspaceID } = req.params;
+    const aWorkspace = await pool.query(
+        "SELECT * FROM WS_oh WHERE WorkspaceID = $1", 
+        [WorkspaceID]
+    );
+    res.json(aWorkspace.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+// show details of a workspace
+app.get("/workspace/:WorkspaceID", async (req, res) => {
+  try {
+    const { WorkspaceID } = req.params;
+    const aWorkspace = await pool.query(
+        "SELECT * FROM workspace WHERE WorkspaceID = $1", 
+        [WorkspaceID]
+    );
+    res.json(aWorkspace.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 
 
