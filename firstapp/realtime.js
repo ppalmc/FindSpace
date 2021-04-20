@@ -22,7 +22,6 @@ route.get('/recommWS', async (req,res) => {
         const current_long = 100.53;
         const inrangeWS = []
         const allWorkspace = await (await pool.query("SELECT R1.workspaceid, R2.workspaceid, R2.ws_lat, R2.ws_long, R1.ppl_in_WS, R2.totalseat, R1.ppl_in_WS/R2.totalseat AS crowdedness, R3.photo1, R3.photo2, R3.photo3, CASE WHEN R1.ppl_in_WS/R2.totalseat<=0.25 THEN 1 WHEN R1.ppl_in_WS/R2.totalseat>0.25 AND R1.ppl_in_WS/R2.totalseat <= 0.5 THEN 3 ELSE 5 END AS crowdednessStatus FROM ( SELECT DISTINCT workspaceid, SUM(H.num_in_out) AS ppl_in_WS FROM hardware H GROUP BY workspaceid)AS R1,( SELECT DISTINCT * FROM workspace WS) AS R2,( SELECT DISTINCT * FROM ws_photo) AS R3 WHERE R1.workspaceid = R2.workspaceid AND R1.workspaceid = R3.workspaceid ORDER BY crowdednessStatus ASC")).rows
-        console.log(allWorkspace)
         for (i in allWorkspace) {
             distance = measure(allWorkspace[i].ws_lat,allWorkspace[i].ws_long,current_lat,current_long)
             if (distance <= 500) {

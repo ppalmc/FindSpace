@@ -71,7 +71,7 @@ app.get("/showpic/:WorkspaceID", async (req, res) => {
 });
 
 // show ophours of a workspace
-app.get("/showmenu/:WorkspaceID", async (req, res) => {
+app.get("/showophour/:WorkspaceID", async (req, res) => {
   
   try {
     const { WorkspaceID } = req.params;
