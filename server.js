@@ -19,6 +19,7 @@ var transporter = nodemailer.createTransport({
 const PORT = process.env.PORT || 3000;
 
 const initializePassport = require("./passportConfig");
+const { callbackPromise } = require("nodemailer/lib/shared");
 
 initializePassport(passport);
 
@@ -82,42 +83,73 @@ app.get("/users/location", checkNotAuthenticated, (req, res) => {
         }
           console.log("reaches here");
           console.log(results);
+          for(x = 0; x < results.rowCount; x++){
+            console.log(x);
+            var result = Object.values(results.rows[x]);
+            str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
+          }
           res.render("location.ejs", { name: results.wsname, des: results.ws_des, lat: results.ws_lat, long: results.ws_long, seat : result.totalseat, outlet: results.poweroutlet, wifi: results.wifi  });
       }
   )
 });
 
 app.get("/users/home", checkNotAuthenticated, (req, res) => {
-  // console.log(req.isAuthenticated());
-  // name: results.wsname, des: results.ws_des, lat: results.ws_lat, long: results.ws_long, seat : result.totalseat, outlet: results.poweroutlet, wifi: results.wifi
+  var str = '';
   pool.query(
-    `SELECT * FROM public."workspace"`,
-      (err, results) => {
-        if (err) {
-          throw err;
-        }
-        console.log("reaches here");
-        console.log(iterativeQuery(results.rowCount));
-        res.render("home.ejs", { location: iterativeQuery(results.rowCount), count: results.rowCount });
+  `SELECT * FROM public."workspace"`,
+    (err, results) => {
+      if (err) {
+        throw err;
       }
+      for(x = 0; x < results.rowCount; x++){
+        console.log(x);
+        var result = Object.values(results.rows[x]);
+        str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
+      }
+      console.log(str);
+      res.render('home.ejs', {location : str, count : results.rowCount});
+    }
   )
 });
 
 app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
-  // console.log(req.isAuthenticated());
+  var str = '';
+  let wsID = new Array();
   pool.query(
-    `SELECT * FROM public."favorite"
-      WHERE email = $1`,
-      [req.user.email],
-      (err, results) => {
-        if (err) {
-          throw err;
-        }
-          console.log("reaches here");
-          console.log(results.rows);
-          console.log(results.rowCount);
-          res.render("favorite.ejs", { location: iterativeQuery(), count: results.rowCount });
+  `SELECT * FROM public."favorite"
+    WHERE email = $1`,
+    [req.user.email],
+    (err, results) => {
+      if (err) {
+        throw err;
       }
+      for(i = 0; i < results.rowCount; i++){
+        console.log(i);
+        var result = Object.values(results.rows[i]);
+        wsID.push (result[1]);
+      }
+      console.log(wsID);
+
+      for(z = 0; z < wsID.length; z++){
+        pool.query(
+        `SELECT * FROM public."workspace"
+          WHERE workspaceid = $1`,
+          [wsID[z]],
+          (err, results) => {
+            if (err) {
+              throw err;
+            }
+            for(x = 0; x < results.rowCount; x++){
+              console.log(x);
+              var result = Object.values(results.rows[x]);
+              str = str + '\n'+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'\n'+'|';
+            }
+            console.log(str);
+            res.render('favorite.ejs', {location : str, count : results.rowCount});
+          }
+        )
+      }
+    }
   )
 });
 
@@ -310,20 +342,21 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
             message: "Email already registered"
           });
         } else {
+          let temp = email;
+          req.logout();
           pool.query(
             `UPDATE public."user"
               SET email = $1
               WHERE email = $2`,
-            [newEmail, email],
+            [newEmail, temp],
             (err, results) => {
               if (err) {
                 throw err;
               }
               console.log("reaches here");
               console.log(results);
-              // user.email = newEmail;
               req.flash("success_msg", "Your email has been updated!");
-              res.redirect("/users/profile");
+              res.render("index");
             }
           );
         }
@@ -479,28 +512,6 @@ function checkNotAuthenticated(req, res, next) {
     return next();
   }
   res.redirect("/users/login");
-}
-
-function iterativeQuery(req) {
-  var str = '';
-  
-  pool.query(
-  `SELECT * FROM public."workspace"`,
-    (err, results) => {
-      if (err) {
-        throw err;
-      }
-      for(x = 0; x < req; x++){
-        console.log('cat');
-        console.log(x);
-        var result = Object.values(results.rows[x]);
-        console.log(result);
-        str = str + '\n' + '<p>'+result[0]+' '+result[1]+' '+result[2]+' '+result[3]+' '+result[4]+' '+result[5]+' '+result[6]+'</p>'+'</br>'+'\n';
-        console.log(str);
-      }
-    }
-  )
-  return str;
 }
 
 app.listen(PORT, () => {
