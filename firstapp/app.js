@@ -6,6 +6,7 @@ const bp = require('body-parser')
 const pool = require("./db")
 const admin = require('./admin')
 const homepage = require('./homepage')
+const wsdetail = require('./wsdetail')
 
 app.use(cors());
 app.use(express.json())
@@ -18,11 +19,8 @@ app.use(bp.urlencoded({extended:true}))
 
 app.use('/admin', admin)
 app.use('/homepage', homepage)
+app.use('/wsdetail', wsdetail)
 
-app.get('/cumap', (req, res)=> {
-    res.sendFile(path.join(__dirname,'src','map.html'))
-    console.log("map shown")
-})
 
 
 // user input feedback 
@@ -38,70 +36,6 @@ app.post("/give_feedback", async (req, res) => {
     console.error(err.message);
   }
 });
-
-
-// show menu of a workspace
-app.get("/showmenu/:WorkspaceID", async (req, res) => {
-  
-  try {
-    const { WorkspaceID } = req.params;
-    const aWorkspace = await pool.query(
-        "SELECT * FROM WS_menu WHERE WorkspaceID = $1", 
-        [WorkspaceID]
-    );
-    res.json(aWorkspace.rows[0]);
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-
-// show photo of a workspace
-app.get("/showpic/:WorkspaceID", async (req, res) => {
-  try {
-    const { WorkspaceID } = req.params;
-    const aWorkspace = await pool.query(
-        "SELECT * FROM WS_photo WHERE WorkspaceID = $1", 
-        [WorkspaceID]
-    );
-    res.json(aWorkspace.rows[0]);
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-// show ophours of a workspace
-app.get("/showophour/:WorkspaceID", async (req, res) => {
-  
-  try {
-    const { WorkspaceID } = req.params;
-    const aWorkspace = await pool.query(
-        "SELECT * FROM WS_oh WHERE WorkspaceID = $1", 
-        [WorkspaceID]
-    );
-    res.json(aWorkspace.rows[0]);
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-// show details of a workspace
-app.get("/workspace/:WorkspaceID", async (req, res) => {
-  try {
-    const { WorkspaceID } = req.params;
-    const aWorkspace = await pool.query(
-        "SELECT * FROM workspace WHERE WorkspaceID = $1", 
-        [WorkspaceID]
-    );
-    res.json(aWorkspace.rows[0]);
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-
-
-
 
 
 
