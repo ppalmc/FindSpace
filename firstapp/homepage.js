@@ -6,14 +6,6 @@ const http = require('http')
 const server = http.createServer(app)
 const io = require('socket.io')(server)
 
-// get the realtime crowdedness (in progress)
-io.on('connection', (socket) => {
-    console.log('a user connected');
-    socket.on('disconnect', () => {
-      console.log('user disconnected');
-    });
-});
-
 
 // get request for display WS in recommended order
 route.get('/recommWS', async (req,res) => {

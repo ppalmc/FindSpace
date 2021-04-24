@@ -5,7 +5,7 @@ const cors = require('cors')
 const bp = require('body-parser')
 const pool = require("./db")
 const admin = require('./admin')
-const realtime = require('./realtime')
+const homepage = require('./homepage')
 
 app.use(cors());
 app.use(express.json())
@@ -17,7 +17,7 @@ app.set('view engine','ejs');
 app.use(bp.urlencoded({extended:true}))
 
 app.use('/admin', admin)
-app.use('/realtime', realtime)
+app.use('/homepage', homepage)
 
 app.get('/cumap', (req, res)=> {
     res.sendFile(path.join(__dirname,'src','map.html'))
