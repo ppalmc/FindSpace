@@ -94,26 +94,25 @@ app.get("/users/location", checkNotAuthenticated, (req, res) => {
 });
 
 app.get("/users/home", checkNotAuthenticated, (req, res) => {
-  var str = '';
+  // var str = '';
   pool.query(
   `SELECT * FROM public."workspace"`,
     (err, results) => {
       if (err) {
         throw err;
       }
-      for(x = 0; x < results.rowCount; x++){
-        console.log(x);
-        var result = Object.values(results.rows[x]);
-        str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
-      }
-      console.log(str);
-      res.render('home.ejs', {location : str, count : results.rowCount});
+      // for(x = 0; x < results.rowCount; x++){
+      //   console.log(x);
+      //   var result = Object.values(results.rows[x]);
+      //   str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
+      // }
+      res.render('home.ejs', {location : results.rows, count : results.rowCount});
     }
   )
 });
 
 app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
-  var str = '';
+  // var str = '';
   let wsID = new Array();
   pool.query(
   `SELECT * FROM public."favorite"
@@ -139,13 +138,13 @@ app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
             if (err) {
               throw err;
             }
-            for(x = 0; x < results.rowCount; x++){
-              console.log(x);
-              var result = Object.values(results.rows[x]);
-              str = str + '\n'+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'\n'+'|';
-            }
-            console.log(str);
-            res.render('favorite.ejs', {location : str, count : results.rowCount});
+            // for(x = 0; x < results.rowCount; x++){
+            //   console.log(x);
+            //   var result = Object.values(results.rows[x]);
+            //   str = str + '\n'+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'\n'+'|';
+            // }
+            // console.log(str);
+            res.render('favorite.ejs', {location : results.rows});
           }
         )
       }
@@ -163,14 +162,14 @@ app.get("/users/profileManage/changeEmail", checkNotAuthenticated, (req, res) =>
   res.render("profileManage/changeEmail.ejs");
 });
 
-app.get("/users/profileManage/changePassword", (req, res) => {
+// app.get("/users/profileManage/changePassword", (req, res) => {
+//   // console.log(req.isAuthenticated());
+//   res.render("profileManage/changePassword.ejs");
+// });
+
+app.get("/users/profileManage/changePassword/:email", (req, res) => {
   // console.log(req.isAuthenticated());
-  if (req.isAuthenticated()) {
-    res.render("profileManage/changePassword.ejs");
-  }
-  else {
-    
-  }
+  res.render("profileManage/changePassword.ejs");
 });
 
 app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res) => {
@@ -193,9 +192,29 @@ app.get("/users/logout", (req, res) => {
   res.render("index", { message: "You have logged out successfully" });
 });
 
+app.post("/users/home", async (req, res) => {
+  let { heart } = req.body;
+
+  console.log({
+    email
+  });
+  pool.query(
+    `INSERT INTO public."favorite" (email, workspaceid)
+      VALUES ($1, $2)`,
+    [email, heart],
+    (err, results) => {
+      if (err) {
+        throw err;
+      }
+        console.log("reaches here");
+        console.log(results);
+        req.flash("success_msg", "Your favorite place has been updated!");
+    }
+  );
+});
+
 app.post("/users/forgotPassword", async (req, res) => {
   let { email } = req.body;
-
   let errors = [];
   console.log({
     email
@@ -212,7 +231,7 @@ app.post("/users/forgotPassword", async (req, res) => {
       transporter.sendMail({from:"prayforchulatinder@gmail.com",
                             to: email,
                             subject:"Findspace Password reset",
-                            html: '<h1>Click the link below you stupid</h1><a href="/users/profileManage/changePassword?email="+email>LINK</a>'
+                            html: `<h1>Click the link below you stupid</h1><a href="http://localhost:3000/users/profileManage/changePassword?email=${email}">LINK</a>`
                           }, function(error, info){
         if (error) {
           console.log(error);
@@ -229,6 +248,55 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
 
   let errors = [];
   let email = req.user.email;
+  console.log({
+    password,
+    password2
+  });
+
+  if (!password || !password2) {
+    errors.push({ message: "Please enter all fields" });
+  }
+
+  if (password.length < 6) {
+    errors.push({ message: "Password must be a least 6 characters long" });
+  }
+
+  if (password !== password2) {
+    errors.push({ message: "Passwords do not match" });
+  }
+
+  if (errors.length > 0) {
+    res.render("profileManage/changePassword.ejs", { errors, password, password2 });
+  } 
+  else {
+    hashedPassword = await bcrypt.hash(password, 10);
+    console.log(hashedPassword);
+    // Validation passed
+
+    pool.query(
+      `UPDATE public."user"
+        SET pwd = $1
+        WHERE email = $2`,
+      [hashedPassword, email],
+      (err, results) => {
+        if (err) {
+          throw err;
+        }
+          console.log("reaches here");
+          console.log(results);
+          req.flash("success_msg", "Your password has been updated!");
+          res.redirect("/users/profile");
+      }
+    );
+  }
+});
+
+app.post("/users/profileManage/changePassword/:email", async (req, res) => {
+  let { password, password2 } = req.body;
+
+  let errors = [];
+  let email = req.params.email;
+  console.log(email);
   console.log({
     password,
     password2
