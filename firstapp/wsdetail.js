@@ -2,9 +2,23 @@ const express = require('express')
 const app = express()
 const pool = require("./db")
 const route = express.Router()
-const http = require('http')
-const server = http.createServer(app)
-const io = require('socket.io')(server)
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
+const cors = require("cors")
+const bp = require("body-parser")
+
+//middleware
+route.use(cors());
+route.use(express.json()); //req.body
+
+
+//ROUTES//
+
+// route.set('view engine','ejs');
+route.use(bp.urlencoded({extended:true}));
+
+
+
 
 
 // show menu of a workspace

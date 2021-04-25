@@ -162,7 +162,7 @@ route.post("/pic", async (req, res) => {
 route.put("/pic/photo1/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const {photo1, photo2, photo3,WorkspaceID } = req.body;
+        const {photo1, photo2, photo3 } = req.body;
         const updatephoto1 = await pool.query(
         "UPDATE ws_photo SET photo1 = $1 WHERE WorkspaceID = $2",
         [photo1, WorkspaceID]
@@ -178,7 +178,7 @@ route.put("/pic/photo1/:WorkspaceID", async (req, res) => {
 route.put("/pic/photo2/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const {photo1, photo2, photo3,WorkspaceID } = req.body;
+        const {photo1, photo2, photo3 } = req.body;
         const updatephoto2 = await pool.query(
         "UPDATE ws_photo SET photo2 = $1 WHERE WorkspaceID = $2",
         [photo2, WorkspaceID]
@@ -194,7 +194,7 @@ route.put("/pic/photo2/:WorkspaceID", async (req, res) => {
 route.put("/pic/photo3/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const {photo1, photo2, photo3,WorkspaceID } = req.body;
+        const {photo1, photo2, photo3 } = req.body;
         const updatephoto3 = await pool.query(
         "UPDATE ws_photo SET photo3 = $1 WHERE WorkspaceID = $2",
         [photo3, WorkspaceID]
@@ -226,7 +226,7 @@ route.post("/menu", async (req, res) => {
 route.put("/pic/menu1/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const {menu1, menu2, menu3, WorkspaceID } = req.body;
+        const {menu1, menu2, menu3 } = req.body;
         const updatemenu1 = await pool.query(
         "UPDATE ws_menu SET menu1 = $1 WHERE WorkspaceID = $2",
         [menu1, WorkspaceID]
@@ -242,7 +242,7 @@ route.put("/pic/menu1/:WorkspaceID", async (req, res) => {
 route.put("/pic/menu2/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const {menu1, menu2, menu3, WorkspaceID } = req.body;
+        const {menu1, menu2, menu3 } = req.body;
         const updatemenu2 = await pool.query(
         "UPDATE ws_menu SET menu2 = $1 WHERE WorkspaceID = $2",
         [menu2, WorkspaceID]
@@ -258,7 +258,7 @@ route.put("/pic/menu2/:WorkspaceID", async (req, res) => {
 route.put("/pic/menu3/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const {menu1, menu2, menu3, WorkspaceID } = req.body;
+        const {menu1, menu2, menu3} = req.body;
         const updatemenu3 = await pool.query(
         "UPDATE ws_menu SET menu3 = $1 WHERE WorkspaceID = $2",
         [menu3, WorkspaceID]

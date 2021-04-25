@@ -4,22 +4,33 @@ const path = require('path')
 const cors = require('cors')
 const bp = require('body-parser')
 const pool = require("./db")
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
+
 const admin = require('./admin')
 const homepage = require('./homepage')
 const wsdetail = require('./wsdetail')
 
+
+
+//middleware
 app.use(cors());
-app.use(express.json())
-app.listen(5678, () => {
-    console.log("server has started on port 5678...")
-});
+app.use(express.json()); //req.body
+
+
+//ROUTES//
 
 app.set('view engine','ejs');
-app.use(bp.urlencoded({extended:true}))
+app.use(bp.urlencoded({extended:true}));
 
 app.use('/admin', admin)
 app.use('/homepage', homepage)
 app.use('/wsdetail', wsdetail)
+
+app.listen(5678, () => {
+    console.log("server has started on port 5678...")
+});
+
 
 
 
@@ -40,3 +51,6 @@ app.post("/give_feedback", async (req, res) => {
 
 
 module.exports = app
+
+
+// try to get current position
