@@ -80,5 +80,35 @@ route.get("/workspace/:WorkspaceID", async (req, res) => {
   }
 });
 
+// get hardware data function
+async function getHardwareData(){
+    try {
+        const numinout = await pool.query("SELECT H.workspaceid, W.workspaceid, H.suminout/W.totalseat AS crowdedness \n"+ 
+                                            "CASE WHEN H.suminout/W.totalseat<=0.25 THEN 1 \n"+
+                                            "WHEN H.suminout/W.totalseat>0.25 AND H.suminout/W.totalseat <= 0.5 THEN 3 \n"+
+                                            "ELSE 5 \n"+
+                                            "END AS crowdednessStatus \n"+
+                                            "FROM ( SELECT workspaceid, sum(num_in_out) AS suminout \n"+
+                                                    "FROM hardware H \n"+
+                                                    "GROUP BY workspaceid ), \n"+
+                                                "( SELECT workspaceid, totalseat \n"+
+                                                    "FROM workspace W ) \n"+
+                                            "WHERE H.workspaceid = W.workspaceid");
+        
+        return numinout.rows;
+    } catch (err) {
+        return err.message;
+    }
+};
+
+//get feedback function
+async function getFeedBack(){
+    try {
+        const feedback = await pool.query("SELECT feedbacktime, feedbackstatus, workspaceid FROM gives_feedback");
+        return feedback;
+    } catch (err) {
+        return err.message;
+    }
+};
 
 module.exports = route
