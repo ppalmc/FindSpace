@@ -6,17 +6,30 @@ const route = express.Router()
 
 route.post("/workspace", async (req, res) => {
     try {
-      const {wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet } = req.body;
+      const wsname = req.query.wsname;
+      const ws_des = req.query.ws_des;
+      const ws_lat = req.query.ws_lat;
+      const ws_long = req.query.ws_long;
+      const ws_link = req.query.ws_link;
+      const totalseat = req.query.totalseat;
+      const wifi = req.query.wifi;
+      const poweroutlet = req.query.poweroutlet;
+      // console.log(req);
+      console.log("req.body");
+      console.log(req.body);
+      console.log("req.query");
+      console.log(req.query);
       const newWorkspace = await pool.query(
-        "INSERT INTO Workspace (wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *",
-        [wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet]
+        "INSERT INTO Workspace (wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
+        [wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi, poweroutlet]
       );
       console.log(req.body);
     } catch (err) {
       console.error(err.message);
     }
 });
-  
+
+
 // show all workspace 
   
 route.get("/workspace", async (req, res) => {

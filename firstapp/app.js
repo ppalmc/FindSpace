@@ -48,9 +48,4 @@ app.post("/give_feedback", async (req, res) => {
   }
 });
 
-
-
 module.exports = app
-
-
-// try to get current position
