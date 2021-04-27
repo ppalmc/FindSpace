@@ -80,6 +80,21 @@ route.get("/workspace/:WorkspaceID", async (req, res) => {
   }
 });
 
+// show crowdedness of a workspace
+route.get("/crowdedness/:WorkspaceID", async (req, res) => {
+  try {
+    const { WorkspaceID } = req.params;
+    const crowdedness = await (getHardwareData())
+    for (i in crowdedness) {
+      if (crowdedness.workspaceid = WorkspaceID) {
+          res.json(crowdedness.crowdednessStatus);
+      }
+    }
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
 // get hardware data function
 async function getHardwareData(){
     try {
