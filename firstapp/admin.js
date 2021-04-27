@@ -14,11 +14,6 @@ route.post("/workspace", async (req, res) => {
       const totalseat = req.query.totalseat;
       const wifi = req.query.wifi;
       const poweroutlet = req.query.poweroutlet;
-      // console.log(req);
-      console.log("req.body");
-      console.log(req.body);
-      console.log("req.query");
-      console.log(req.query);
       const newWorkspace = await pool.query(
         "INSERT INTO Workspace (wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
         [wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi, poweroutlet]
@@ -31,7 +26,7 @@ route.post("/workspace", async (req, res) => {
 
 
 // show all workspace 
-  
+
 route.get("/workspace", async (req, res) => {
     try {
       const allWorkspace = await pool.query("SELECT * FROM workspace");

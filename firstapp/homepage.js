@@ -10,8 +10,8 @@ const io = require('socket.io')(server)
 // get request for display WS in recommended order
 route.get('/recommWS', async (req,res) => {
     try {
-        const current_lat = req.params.Lat;
-        const current_long = req.params.Long;
+        const current_lat = req.query.Lat;
+        const current_long = req.query.Long;
         const inrangeWS = []
         const allWorkspace = await (await pool.query("SELECT R1.workspaceid, R2.workspaceid,R2.wsname, R2.ws_lat, R2.ws_long, R1.ppl_in_WS, R2.totalseat, R1.ppl_in_WS/R2.totalseat AS crowdedness, R3.photo1, R3.photo2, R3.photo3, R4.feedbacktime, R4.feedbackstatus, CASE WHEN R1.ppl_in_WS/R2.totalseat<=0.25 THEN 1 WHEN R1.ppl_in_WS/R2.totalseat>0.25 AND R1.ppl_in_WS/R2.totalseat <= 0.5 THEN 3 ELSE 5 END AS crowdednessStatus FROM ( SELECT DISTINCT workspaceid, SUM(H.num_in_out) AS ppl_in_WS FROM hardware H GROUP BY workspaceid) AS R1, ( SELECT DISTINCT * FROM workspace WS) AS R2, ( SELECT DISTINCT * FROM ws_photo) AS R3,( SELECT DISTINCT * FROM gives_feedback) AS R4 WHERE R1.workspaceid = R2.workspaceid AND R1.workspaceid = R3.workspaceid AND R1.workspaceid = R4.workspaceid ORDER BY crowdednessStatus ASC")).rows
         for (i in allWorkspace) {
