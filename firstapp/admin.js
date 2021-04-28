@@ -277,4 +277,33 @@ route.put("/pic/menu3/:WorkspaceID", async (req, res) => {
     }
 });
 
+// add new ophours to a workspace
+route.post("/ophour", async (req, res) => {
+    try {
+      const {time, WorkspaceID } = req.body;
+      const newOphour = await pool.query(
+        "INSERT INTO ws_oh (time, WorkspaceID) VALUES($1,$2) RETURNING *",
+        [time, WorkspaceID]
+      );
+      console.log(req.body);
+    } catch (err) {
+      console.error(err.message);
+    }
+});
+
+// update time
+route.put("/ophour/time/:WorkspaceID", async (req, res) => {
+    try {
+        const { WorkspaceID } = req.params;
+        const { time } = req.body;
+        const updateOphour = await pool.query(
+        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2",
+        [time, WorkspaceID]
+        );
+        res.json("Ophour was updated!");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 module.exports = route
