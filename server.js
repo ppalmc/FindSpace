@@ -6,7 +6,15 @@ const flash = require("express-flash");
 const session = require("express-session");
 require("dotenv").config();
 const app = express();
+
+const bp = require('body-parser')
 const cors = require("cors")
+
+const admin = require('./admin')
+const homepage = require('./homepage')
+const wsdetail = require('./wsdetail')
+
+app.use(express.json()); //req.body
 
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
@@ -29,7 +37,54 @@ initializePassport(passport);
 
 // Parses details from a form
 app.use(express.urlencoded({ extended: true }));
-app.set("view engine", "ejs");
+// app.set("view engine", 'ejs');
+app.set("view engine", 'pug');
+
+app.use('/admin', admin)
+app.use('/homepage', homepage)
+app.use('/wsdetail', wsdetail)
+
+app.get("/search", async (req, res) => {
+  try {
+    if(req.query.id != null) {
+      const numinout = await pool.query("SELECT wsname, workspaceid FROM workspace WHERE LOWER(wsname) LIKE LOWER('%"+req.query.id+"%')");
+      res.render('test',{
+        student:numinout.rows
+      });
+      
+      console.log(numinout.rows);
+      res.json(numinout.rows);
+    }else{
+      const numinout = await pool.query("SELECT wsname, workspaceid FROM workspace");
+      res.render('test',{
+        student:numinout.rows
+      });
+      console.log("Query!");
+      console.log(numinout.rows)
+     }
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+app.post("/give_feedback", async (req, res) => {
+  try {
+    const { email, WorkspaceID, feedbacktime, feedbackstatus } = req.query;
+    const newfeedback = await pool.query(
+      "INSERT INTO give_feedback (email, WorkspaceID, feedbacktime, feedbackstatus) VALUES($1,$2,$3,$4) RETURNING *",
+      [email, WorkspaceID, feedbacktime, feedbackstatus]
+    );
+    console.log(req.body);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+app.get('/subscription', async (req,res)=>{
+  res.sendFile(__dirname+'/ggPay.html');
+});
+
+
 
 app.use(
   session({
@@ -587,3 +642,6 @@ function checkNotAuthenticated(req, res, next) {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
+module.exports = app
