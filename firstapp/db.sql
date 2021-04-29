@@ -46,7 +46,8 @@ CREATE TABLE Likes(
 -- Arrange WS order by crowdednessStatus
 SELECT R1.workspaceid, R2.workspaceid,R2.wsname, R2.ws_lat, R2.ws_long, R1.ppl_in_WS, R2.totalseat, R1.ppl_in_WS/R2.totalseat AS crowdedness, R3.photo1, R3.photo2, R3.photo3, R4.feedbacktime, R4.feedbackstatus,
 CASE WHEN R1.ppl_in_WS/R2.totalseat<=0.25 THEN 1
-WHEN R1.ppl_in_WS/R2.totalseat>0.25 AND R1.ppl_in_WS/R2.totalseat <= 0.5 THEN 3
+WHEN R1.ppl_in_WS/R2.totalseat>0.25 AND R1.ppl_in_WS/R2.totalseat <= 0.4 THEN 2.4
+WHEN R1.ppl_in_WS/R2.totalseat>0.4 AND R1.ppl_in_WS/R2.totalseat <= 0.6 THEN 3.6
 ELSE 5
 END AS crowdednessStatus
 FROM ( SELECT DISTINCT workspaceid, SUM(H.num_in_out) AS ppl_in_WS 
