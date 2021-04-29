@@ -137,10 +137,10 @@ route.put("/workspace/poweroutlets/:WorkspaceID", async (req, res) => {
   
 route.delete("/workspace/:Workspace_ID", async (req, res) => {
     try {
-      const { Workspace_ID } = req.params;
+      const { WorkspaceID } = req.params;
       const deleteWorkspace = await pool.query(
-          "DELETE FROM workspace WHERE Workspace_ID = $1", 
-          [Workspace_ID]
+          "DELETE FROM workspace WHERE WorkspaceID = $1", 
+          [WorkspaceID]
       );
       res.json("The workspace was deleted!");
     } catch (err) {
