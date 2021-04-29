@@ -1,5 +1,5 @@
 const express = require('express')
-const pool = require("./db")
+const { pool } = require("./dbConfig");
 const route = express.Router()
 
 // create new workspace

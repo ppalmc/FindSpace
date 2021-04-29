@@ -1,9 +1,7 @@
 const express = require('express')
 const app = express()
-const pool = require("./db")
+const { pool } = require("./dbConfig");
 const route = express.Router()
-const http = require('http').Server(app)
-const io = require('socket.io')(http)
 const cors = require("cors")
 const bp = require("body-parser")
 

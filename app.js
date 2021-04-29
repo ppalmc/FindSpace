@@ -3,14 +3,11 @@ const app = express()
 const path = require('path')
 const cors = require('cors')
 const bp = require('body-parser')
-const pool = require("./db")
-const http = require('http').Server(app)
-const io = require('socket.io')(http)
+const { pool } = require("./dbConfig");
 
 const admin = require('./admin')
 const homepage = require('./homepage')
 const wsdetail = require('./wsdetail')
-const { query } = require('./db')
 
 app.listen(5678, () => {
   console.log("server has started on port 5678...")

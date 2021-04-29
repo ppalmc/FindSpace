@@ -1,11 +1,7 @@
 const express = require('express')
 const app = express()
-const pool = require("./db")
+const { pool } = require("./dbConfig");
 const route = express.Router()
-const http = require('http')
-const server = http.createServer(app)
-const io = require('socket.io')(server)
-
 
 // get request for display WS in recommended order
 route.get('/recommWS', async (req,res) => {

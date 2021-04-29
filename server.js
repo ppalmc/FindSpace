@@ -17,7 +17,7 @@ var transporter = nodemailer.createTransport({
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5678;
 
 const initializePassport = require("./passportConfig");
 app.use(cors());
