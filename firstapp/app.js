@@ -1,34 +1,69 @@
 const express = require('express')
 const app = express()
 const path = require('path')
+const cors = require('cors')
 const bp = require('body-parser')
-const joi = require('joi')
+const pool = require("./db")
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
 
-app.listen(5678);
+const admin = require('./admin')
+const homepage = require('./homepage')
+const wsdetail = require('./wsdetail')
+const { query } = require('./db')
 
-app.set('view engine','ejs');
-
-app.use(bp.urlencoded({extended:true}))
-app.use(bp.json());
-
-app.get('/login', (req, res)=> {
-    res.sendFile(path.join(__dirname,'src','login.html'))
-})
-app.post('/login',(req,res)=>{
-    console.log(req.body) 
+app.listen(5678, () => {
+  console.log("server has started on port 5678...")
+});
 
 
-<<<<<<< Updated upstream
-    // const user = joi.object().keys({
-    //     username: joi.string().min(3).max(20).required(),
-    //     password: joi.string().min(5).max(10).required(),
-        // latitude: joi.number().precision(6).min(-90).max(90).required(),
-        // longitude: joi.number().precision(6).min(-180).max(180).required()  
-    // });
-    // const validation = user.validate(req.body);
-    // res.send(validation);
-    res.json({success : true});
-=======
+//middleware
+app.use(cors());
+app.use(express.json()); //req.body
+app.use(bp.urlencoded({extended:true}));
+
+
+//ROUTES//
+
+app.set('view engine','pug');
+// app.set('view engine','ejs');
+
+app.use('/admin', admin)
+app.use('/homepage', homepage)
+app.use('/wsdetail', wsdetail)
+
+
+// search fn
+app.get("/search", async (req, res) => {
+  try {
+    if(req.query.id != null) {
+      const numinout = await pool.query("SELECT wsname, workspaceid FROM workspace WHERE LOWER(wsname) LIKE LOWER('%"+req.query.id+"%')");
+      res.render('test',{
+        student:numinout.rows
+      });
+      
+      console.log(numinout.rows);
+      res.json(numinout.rows);
+    }else{
+      const numinout = await pool.query("SELECT wsname, workspaceid FROM workspace");
+      res.render('test',{
+        student:numinout.rows
+      });
+      console.log("Query!");
+      console.log(numinout.rows)
+     }
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+//go to subscription page
+app.get('/subscription', async (req,res)=>{
+  res.sendFile(__dirname+'/ggPay.html');
+});
+
+
+
 // user input feedback 
 app.post("/give_feedback", async (req, res) => {
   try {
@@ -41,14 +76,6 @@ app.post("/give_feedback", async (req, res) => {
   } catch (err) {
     console.error(err.message);
   }
->>>>>>> Stashed changes
 });
 
-app.get('/cumap', (req, res)=> {
-    res.sendFile(path.join(__dirname,'src','map.html'))
-    console.log("E Y A I")
-})
-app.post('/cumap',(req,res)=>{
-    // const obj = JSON.parse(JSON.stringify(req.body));
-    console.log(req.body)
-})
+module.exports = app
