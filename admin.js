@@ -278,7 +278,7 @@ route.put("/ophour/mon/:WorkspaceID", async (req, res) => {
         const { WorkspaceID } = req.params;
         const { time } = req.query;
         const updateOphour = await pool.query(
-        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'mon'",
+        "UPDATE ws_oh SET mon = $1 WHERE WorkspaceID = $2",
         [time, WorkspaceID]
         );
         res.json("Mon Ophour was updated!");
@@ -293,7 +293,7 @@ route.put("/ophour/tue/:WorkspaceID", async (req, res) => {
         const { WorkspaceID } = req.params;
         const { time } = req.query;
         const updateOphour = await pool.query(
-        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'tue'",
+        "UPDATE ws_oh SET tue = $1 WHERE WorkspaceID = $2",
         [time, WorkspaceID]
         );
         res.json("Tue Ophour was updated!");
@@ -303,12 +303,12 @@ route.put("/ophour/tue/:WorkspaceID", async (req, res) => {
 });
 
 // update time on wednesday
-route.put("/ophour/wed/:WorkspaceID", async (req, res) => {
+route.put("/ophour/mon/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { time } = req.query;
         const updateOphour = await pool.query(
-        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'wed'",
+        "UPDATE ws_oh SET wed = $1 WHERE WorkspaceID = $2",
         [time, WorkspaceID]
         );
         res.json("Wed Ophour was updated!");
@@ -317,13 +317,13 @@ route.put("/ophour/wed/:WorkspaceID", async (req, res) => {
     }
 });
 
-// update time on thursday
+// update time on thrusday
 route.put("/ophour/thu/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { time } = req.query;
         const updateOphour = await pool.query(
-        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'thu'",
+        "UPDATE ws_oh SET thu = $1 WHERE WorkspaceID = $2",
         [time, WorkspaceID]
         );
         res.json("Thu Ophour was updated!");
@@ -338,7 +338,7 @@ route.put("/ophour/fri/:WorkspaceID", async (req, res) => {
         const { WorkspaceID } = req.params;
         const { time } = req.query;
         const updateOphour = await pool.query(
-        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'fri'",
+        "UPDATE ws_oh SET fri = $1 WHERE WorkspaceID = $2",
         [time, WorkspaceID]
         );
         res.json("Fri Ophour was updated!");
@@ -353,7 +353,7 @@ route.put("/ophour/sat/:WorkspaceID", async (req, res) => {
         const { WorkspaceID } = req.params;
         const { time } = req.query;
         const updateOphour = await pool.query(
-        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'sat'",
+        "UPDATE ws_oh SET sat = $1 WHERE WorkspaceID = $2",
         [time, WorkspaceID]
         );
         res.json("Sat Ophour was updated!");
@@ -368,7 +368,7 @@ route.put("/ophour/sun/:WorkspaceID", async (req, res) => {
         const { WorkspaceID } = req.params;
         const { time } = req.query;
         const updateOphour = await pool.query(
-        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'sun'",
+        "UPDATE ws_oh SET sun = $1 WHERE WorkspaceID = $2",
         [time, WorkspaceID]
         );
         res.json("Sun Ophour was updated!");
