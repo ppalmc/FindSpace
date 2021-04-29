@@ -140,9 +140,10 @@ route.delete("/workspace/:Workspace_ID", async (req, res) => {
 });
 
 // add new photo record to a workspace
-route.post("/pic", async (req, res) => {
+route.post("/pic/:WorkspaceID", async (req, res) => {
     try {
-      const {photo1, photo2, photo3, WorkspaceID } = req.query;
+    const { WorkspaceID } = req.params;
+      const {photo1, photo2, photo3 } = req.query;
       const newMenurec = await pool.query(
         "INSERT INTO ws_photo (photo1, photo2, photo3, WorkspaceID) VALUES($1,$2,$3,$4) RETURNING *",
         [photo1, photo2, photo3, WorkspaceID]
