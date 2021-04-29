@@ -3,7 +3,6 @@ const { pool } = require("./dbConfig");
 const route = express.Router()
 
 // create new workspace
-
 route.post("/workspace", async (req, res) => {
     try {
       const wsname = req.query.wsname;
@@ -25,8 +24,7 @@ route.post("/workspace", async (req, res) => {
 });
 
 
-// show all workspace 
-
+// show all workspace
 route.get("/workspace", async (req, res) => {
     try {
       const allWorkspace = await pool.query("SELECT * FROM workspace");
@@ -38,7 +36,6 @@ route.get("/workspace", async (req, res) => {
   
 
 //modify a workspace's WSName
-  
 route.put("/workspace/wsname/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -54,7 +51,6 @@ route.put("/workspace/wsname/:WorkspaceID", async (req, res) => {
 });
 
 //modify a workspace's WS_Des
-  
 route.put("/workspace/WS_Des/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -70,7 +66,6 @@ route.put("/workspace/WS_Des/:WorkspaceID", async (req, res) => {
 });
 
 //modify a workspace's coordinate
-  
 route.put("/workspace/coordinate/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -86,7 +81,6 @@ route.put("/workspace/coordinate/:WorkspaceID", async (req, res) => {
 });
 
 //modify a workspace's totalseats
-  
 route.put("/workspace/totalseats/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -102,7 +96,6 @@ route.put("/workspace/totalseats/:WorkspaceID", async (req, res) => {
 });
 
 //modify a workspace's wifi
-  
 route.put("/workspace/wifi/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -118,7 +111,6 @@ route.put("/workspace/wifi/:WorkspaceID", async (req, res) => {
 });
 
 //modify a workspace's poweroutlets
-  
 route.put("/workspace/poweroutlets/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -134,7 +126,6 @@ route.put("/workspace/poweroutlets/:WorkspaceID", async (req, res) => {
 });
   
 //delete a workspace
-  
 route.delete("/workspace/:Workspace_ID", async (req, res) => {
     try {
       const { WorkspaceID } = req.params;
@@ -148,10 +139,7 @@ route.delete("/workspace/:Workspace_ID", async (req, res) => {
     }
 });
 
-
-
 // add new photo record to a workspace
-
 route.post("/pic", async (req, res) => {
     try {
       const {photo1, photo2, photo3, WorkspaceID } = req.query;
@@ -166,7 +154,6 @@ route.post("/pic", async (req, res) => {
 });
 
 // update photo1
-
 route.put("/pic/photo1/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -182,7 +169,6 @@ route.put("/pic/photo1/:WorkspaceID", async (req, res) => {
 });
 
 // update photo2
-
 route.put("/pic/photo2/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -198,7 +184,6 @@ route.put("/pic/photo2/:WorkspaceID", async (req, res) => {
 });
 
 // update photo3
-
 route.put("/pic/photo3/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -215,7 +200,6 @@ route.put("/pic/photo3/:WorkspaceID", async (req, res) => {
 
 
 // add new menu record to a workspace
-
 route.post("/menu", async (req, res) => {
     try {
       const {menu1, menu2, menu3, WorkspaceID } = req.query;
@@ -230,7 +214,6 @@ route.post("/menu", async (req, res) => {
 });
 
 // update menu1
-
 route.put("/pic/menu1/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -246,7 +229,6 @@ route.put("/pic/menu1/:WorkspaceID", async (req, res) => {
 });
 
 // update menu2
-
 route.put("/pic/menu2/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -262,7 +244,6 @@ route.put("/pic/menu2/:WorkspaceID", async (req, res) => {
 });
 
 // update menu3
-  
 route.put("/pic/menu3/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
@@ -280,10 +261,10 @@ route.put("/pic/menu3/:WorkspaceID", async (req, res) => {
 // add new ophours to a workspace
 route.post("/ophour", async (req, res) => {
     try {
-      const {time, WorkspaceID } = req.query;
+      const { day, time, WorkspaceID } = req.query;
       const newOphour = await pool.query(
-        "INSERT INTO ws_oh (time, WorkspaceID) VALUES($1,$2) RETURNING *",
-        [time, WorkspaceID]
+        "INSERT INTO ws_oh (day, time, WorkspaceID) VALUES($1,$2,$3) RETURNING *",
+        [day, time, WorkspaceID]
       );
       console.log(req.body);
     } catch (err) {
@@ -291,16 +272,106 @@ route.post("/ophour", async (req, res) => {
     }
 });
 
-// update time
-route.put("/ophour/time/:WorkspaceID", async (req, res) => {
+// update time on monday
+route.put("/ophour/mon/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { time } = req.query;
         const updateOphour = await pool.query(
-        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2",
+        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'mon'",
         [time, WorkspaceID]
         );
-        res.json("Ophour was updated!");
+        res.json("Mon Ophour was updated!");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+// update time on tuesday
+route.put("/ophour/tue/:WorkspaceID", async (req, res) => {
+    try {
+        const { WorkspaceID } = req.params;
+        const { time } = req.query;
+        const updateOphour = await pool.query(
+        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'tue'",
+        [time, WorkspaceID]
+        );
+        res.json("Tue Ophour was updated!");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+// update time on wednesday
+route.put("/ophour/wed/:WorkspaceID", async (req, res) => {
+    try {
+        const { WorkspaceID } = req.params;
+        const { time } = req.query;
+        const updateOphour = await pool.query(
+        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'wed'",
+        [time, WorkspaceID]
+        );
+        res.json("Wed Ophour was updated!");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+// update time on thursday
+route.put("/ophour/thu/:WorkspaceID", async (req, res) => {
+    try {
+        const { WorkspaceID } = req.params;
+        const { time } = req.query;
+        const updateOphour = await pool.query(
+        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'thu'",
+        [time, WorkspaceID]
+        );
+        res.json("Thu Ophour was updated!");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+// update time on friday
+route.put("/ophour/fri/:WorkspaceID", async (req, res) => {
+    try {
+        const { WorkspaceID } = req.params;
+        const { time } = req.query;
+        const updateOphour = await pool.query(
+        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'fri'",
+        [time, WorkspaceID]
+        );
+        res.json("Fri Ophour was updated!");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+// update time on saturday
+route.put("/ophour/sat/:WorkspaceID", async (req, res) => {
+    try {
+        const { WorkspaceID } = req.params;
+        const { time } = req.query;
+        const updateOphour = await pool.query(
+        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'sat'",
+        [time, WorkspaceID]
+        );
+        res.json("Sat Ophour was updated!");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+// update time on sunday
+route.put("/ophour/sun/:WorkspaceID", async (req, res) => {
+    try {
+        const { WorkspaceID } = req.params;
+        const { time } = req.query;
+        const updateOphour = await pool.query(
+        "UPDATE ws_oh SET time = $1 WHERE WorkspaceID = $2 and day = 'sun'",
+        [time, WorkspaceID]
+        );
+        res.json("Sun Ophour was updated!");
     } catch (err) {
         console.error(err.message);
     }
