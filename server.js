@@ -119,11 +119,13 @@ app.get("/users/login", (req, res) => {
   res.render("login.ejs");
 });
 
-app.get("/users/forgotPassword", checkAuthenticated, (req, res) => {
+//app.get("/users/forgotPassword", checkAuthenticated, (req, res) => {
+app.get("/users/forgotPassword", (req, res) => {
   res.render("forgotPassword.ejs");
 });
 
-app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
+//app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
+app.get("/users/dashboard", (req, res) => {
   let { email } = req.query;
   res.render("dashboard.ejs", { user: email});
 });
