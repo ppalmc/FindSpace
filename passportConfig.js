@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 
 async function initialize(passport) {
   console.log("Initialized");
-
   const authenticateUser = (email, password, done) => {
     console.log(email, password);
     pool.query(
@@ -56,19 +55,21 @@ async function initialize(passport) {
   // The fetched object is attached to the request object as req.user
 
   passport.deserializeUser(async (email, done) => {
-    try{
-      pool.query(`SELECT * FROM public."user" WHERE email = $1`, [email], (err, results) => {
-        if (err) {
-          return done(err);
-        }
-        console.log(`Email is ${results.rows[0].email}`);
-        return done(null, results.rows[0]);
-      });
-    }
-    catch(e){
-      done(e);
-    }
+  try{
+    pool.query(`SELECT * FROM public."user" WHERE email = $1`, [email], (err, results) => {
+      if (err) {
+        return done(err);
+      }
+      console.log(`Email is ${results.rows[0].email}`);
+      return done(null, results.rows[0]);
+    });
+  }
+  catch(e){
+    done(e);
+  }
   });
 }
+
+
 
 module.exports = initialize;

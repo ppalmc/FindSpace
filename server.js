@@ -6,18 +6,8 @@ const flash = require("express-flash");
 const session = require("express-session");
 require("dotenv").config();
 const app = express();
-
 const cors = require("cors")
 
-//link to admin, homepage, wsdetail js file
-const admin = require('./admin')
-const homepage = require('./homepage')
-const wsdetail = require('./wsdetail')
-
-app.use(express.json()); //req.query
-
-
-//specify the server email
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -27,7 +17,7 @@ var transporter = nodemailer.createTransport({
   }
 });
 
-const PORT = process.env.PORT || 5678;
+const PORT = process.env.PORT || 3000;
 
 const initializePassport = require("./passportConfig");
 app.use(cors());
@@ -39,54 +29,7 @@ initializePassport(passport);
 
 // Parses details from a form
 app.use(express.urlencoded({ extended: true }));
-// app.set("view engine", 'ejs');
-app.set("view engine", 'pug');
-
-app.use('/admin', admin)
-app.use('/homepage', homepage)
-app.use('/wsdetail', wsdetail)
-
-app.get("/search", async (req, res) => {
-  try {
-    if(req.query.id != null) {
-      const numinout = await pool.query("SELECT wsname, workspaceid FROM workspace WHERE LOWER(wsname) LIKE LOWER('%"+req.query.id+"%')");
-      res.render('test',{
-        student:numinout.rows
-      });
-      
-      console.log(numinout.rows);
-      res.json(numinout.rows);
-    }else{
-      const numinout = await pool.query("SELECT wsname, workspaceid FROM workspace");
-      res.render('test',{
-        student:numinout.rows
-      });
-      console.log("Query!");
-      console.log(numinout.rows)
-     }
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-app.post("/give_feedback", async (req, res) => {
-  try {
-    const { email, WorkspaceID, feedbacktime, feedbackstatus } = req.query;
-    const newfeedback = await pool.query(
-      "INSERT INTO give_feedback (email, WorkspaceID, feedbacktime, feedbackstatus) VALUES($1,$2,$3,$4) RETURNING *",
-      [email, WorkspaceID, feedbacktime, feedbackstatus]
-    );
-    console.log(req.query);
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-app.get('/subscription', async (req,res)=>{
-  res.sendFile(__dirname+'/ggPay.html');
-});
-
-
+app.set("view engine", "ejs");
 
 app.use(
   session({
@@ -108,91 +51,79 @@ app.get("/", (req, res) => {
   res.render("index.ejs");
 });
 
-//app.get("/users/register", checkAuthenticated, (req, res) => {
-app.get("/users/register", (req, res) => {
+app.get("/users/register", checkAuthenticated, (req, res) => {
   res.render("register.ejs");
 
 });
 
 // app.get("/users/login", checkAuthenticated, (req, res) => {
-app.get("/users/login", (req, res) => {
+app.get("/users/login", checkAuthenticated, (req, res) => {
+  // flash sets a messages variable. passport sets the error message
+  // console.log(req.session.flash.error);
   res.render("login.ejs");
 });
 
-//app.get("/users/forgotPassword", checkAuthenticated, (req, res) => {
-app.get("/users/forgotPassword", (req, res) => {
+app.get("/users/forgotPassword", checkAuthenticated, (req, res) => {
   res.render("forgotPassword.ejs");
 });
 
-//app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
-app.get("/users/dashboard", (req, res) => {
-  let { email } = req.query;
-  res.render("dashboard.ejs", { user: email});
+app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
+  console.log(req.isAuthenticated());
+  res.render("dashboard.ejs", { user: req.user.name });
 });
 
-// app.get("/users/location", checkNotAuthenticated, (req, res) => {
-//   // console.log(req.isAuthenticated());
-//   let locationID = req.query;
-//   pool.query(
-//     `SELECT * FROM public."workspace"
-//       WHERE $1 = workspaceID`,
-//       [locationID],
-//       (err, results) => {
-//         if (err) {
-//           throw err;
-//         }
-//           console.log("reaches here");
-//           console.log(results);
-//           for(x = 0; x < results.rowCount; x++){
-//             console.log(x);
-//             var result = Object.values(results.rows[x]);
-//             str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
-//           }
-//           res.render("location.ejs");
-//       }
-//   )
-// });
-
-//app.get("/users/home", checkNotAuthenticated, (req, res) => {
-// app.get("/users/home", (req, res) => {
-//   // var str = '';
-
-//   pool.query(
-//   `SELECT * FROM public."workspace"`,
-//     (err, results) => {
-//       if (err) {
-//         throw err;
-//       }
-//       // for(x = 0; x < results.rowCount; x++){
-//       //   console.log(x);
-//       //   var result = Object.values(results.rows[x]);
-//       //   str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
-//       // }
-//       res.render('home.ejs', {location : results.rows, count : results.rowCount});
-//     }
-//   )
-// });
-
-
-//app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
-app.get("/users/favorite", (req, res) => {
-  // var str = '';
-
-
-  let { email } = req.query;
-
-  //wsID count each id that is in favorite
-  let wsID = new Array();
+app.get("/users/location", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  let locationID = req.body;
   pool.query(
-    //select all from favorite with the matching user email
-  `SELECT * FROM public."favorite"
-    WHERE email = $1`,
-    [email],
+    `SELECT * FROM public."workspace"
+      WHERE $1 = workspaceID`,
+      [locationID],
+      (err, results) => {
+        if (err) {
+          throw err;
+        }
+          console.log("reaches here");
+          console.log(results);
+          for(x = 0; x < results.rowCount; x++){
+            console.log(x);
+            var result = Object.values(results.rows[x]);
+            str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
+          }
+          res.render("location.ejs", { name: results.wsname, des: results.ws_des, lat: results.ws_lat, long: results.ws_long, seat : result.totalseat, outlet: results.poweroutlet, wifi: results.wifi  });
+      }
+  )
+});
+
+app.get("/users/home", checkNotAuthenticated, (req, res) => {
+  // var str = '';
+  pool.query(
+  `SELECT * FROM public."workspace"`,
     (err, results) => {
       if (err) {
         throw err;
       }
-      //change object into value and insert each value into wsID array
+      // for(x = 0; x < results.rowCount; x++){
+      //   console.log(x);
+      //   var result = Object.values(results.rows[x]);
+      //   str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
+      // }
+      res.render('home.ejs', {location : results.rows, count : results.rowCount});
+    }
+  )
+});
+
+app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
+  // var str = '';
+  let wsID = new Array();
+  pool.query(
+  `SELECT * FROM public."favorite"
+    WHERE email = $1`,
+    [req.user.email],
+    (err, results) => {
+      if (err) {
+        throw err;
+      }
       for(i = 0; i < results.rowCount; i++){
         console.log(i);
         var result = Object.values(results.rows[i]);
@@ -200,10 +131,8 @@ app.get("/users/favorite", (req, res) => {
       }
       console.log(wsID);
 
-      //use wsID as an identifier to select the correct instance from workspace db
       for(z = 0; z < wsID.length; z++){
         pool.query(
-          //select all workspace that has a matching id
         `SELECT * FROM public."workspace"
           WHERE workspaceid = $1`,
           [wsID[z]],
@@ -225,32 +154,35 @@ app.get("/users/favorite", (req, res) => {
   )
 });
 
-//app.get("/users/profile", checkNotAuthenticated, (req, res) => {
-app.get("/users/profile", (req, res) => {
-  res.render("profile.ejs",);
+app.get("/users/profile", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
+  res.render("profile.ejs", { user: req.user.uname, email: req.user.email });
 });
 
-//app.get("/users/profileManage/changeEmail", checkNotAuthenticated, (req, res) => {
-app.get("/users/profileManage/changeEmail", (req, res) => {
+app.get("/users/profileManage/changeEmail", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
   res.render("profileManage/changeEmail.ejs");
 });
 
-app.get("/users/profileManage/changePassword/:email", (req, res) => {
-  res.render("profileManage/changePassword.ejs");
+app.get("/users/profileManage/changePassword", (req, res) => {
+  // console.log(req.isAuthenticated());
+  let str = '/users/profileManage/changePassword?email='+req.user.email;
+  console.log(str);
+  res.render(str);
 });
 
-//app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res) => {
-app.get("/users/profileManage/changeUsername", (req, res) => {
+app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
   res.render("profileManage/changeUsername.ejs");
 });
 
-//app.get("/users/profileManage/changetype", checkNotAuthenticated, (req, res) => {
-app.get("/users/profileManage/changetype", (req, res) => {
+app.get("/users/profileManage/changetype", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
   res.render("profileManage/changeType.ejs");
 });
 
-//app.get("/users/profileManage/deleteUser", checkNotAuthenticated, (req, res) => {
-app.get("/users/profileManage/deleteUser", (req, res) => {
+app.get("/users/profileManage/deleteUser", checkNotAuthenticated, (req, res) => {
+  // console.log(req.isAuthenticated());
   res.render("profileManage/deleteUser.ejs");
 });
 
@@ -260,14 +192,12 @@ app.get("/users/logout", (req, res) => {
 });
 
 app.post("/users/home", async (req, res) => {
-  //recieve wsID that needs to be favorite as heart variable
-  let { heart } = req.query;
+  let { heart } = req.body;
 
   console.log({
     email
   });
   pool.query(
-    //insert new worksapce into favorite
     `INSERT INTO public."favorite" (email, workspaceid)
       VALUES ($1, $2)`,
     [email, heart],
@@ -283,12 +213,11 @@ app.post("/users/home", async (req, res) => {
 });
 
 app.post("/users/forgotPassword", async (req, res) => {
-  let { email } = req.query;
+  let { email } = req.body;
   let errors = [];
   console.log({
     email
   });
-  //validate that the email is valid
   if (!email) {
     errors.push({ message: "Please enter your email"});
   }
@@ -297,11 +226,11 @@ app.post("/users/forgotPassword", async (req, res) => {
     res.render("forgotPassword.ejs", { errors, email});
   }
   else{
-      // Validation passed, proceed to send password reset email with link to the reset page.
+      // Validation passed
       transporter.sendMail({from:"prayforchulatinder@gmail.com",
                             to: email,
                             subject:"Findspace Password reset",
-                            html: `<h1>Click the link to change your password</h1><a href="http://localhost:3000/users/profileManage/changePassword/${email}">LINK</a>`
+                            html: `<h1>Click the link below you stupid</h1><a href="http://localhost:3000/users/profileManage/changePassword?email=${email}">LINK</a>`
                           }, function(error, info){
         if (error) {
           console.log(error);
@@ -314,14 +243,15 @@ app.post("/users/forgotPassword", async (req, res) => {
 });
 
 app.post("/users/profileManage/changePassword", async (req, res) => {
-  let { password, password2, email} = req.query;
-  let errors = [];
+  let { password, password2 } = req.body;
+  let email = req.params.email;
 
+  let errors = [];
   console.log({
     password,
     password2
   });
-  //validate that the input is valid
+
   if (!password || !password2) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -338,13 +268,11 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
     res.render("profileManage/changePassword.ejs", { errors, password, password2 });
   } 
   else {
-    //hash the password
     hashedPassword = await bcrypt.hash(password, 10);
     console.log(hashedPassword);
     // Validation passed
 
     pool.query(
-      //update new password
       `UPDATE public."user"
         SET pwd = $1
         WHERE email = $2`,
@@ -362,19 +290,17 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
   }
 });
 
-
-//this function is an overload function when user use the forget password function
 app.post("/users/profileManage/changePassword/:email", async (req, res) => {
-  let { password, password2 } = req.query;
+  let { password, password2 } = req.body;
 
   let errors = [];
   let email = req.params.email;
-  console.log(email);
+  console.log('cat'+email);
   console.log({
     password,
     password2
   });
-  //validate the input
+
   if (!password || !password2) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -390,15 +316,12 @@ app.post("/users/profileManage/changePassword/:email", async (req, res) => {
   if (errors.length > 0) {
     res.render("profileManage/changePassword.ejs", { errors, password, password2 });
   } 
-
   else {
-    //hash the password
     hashedPassword = await bcrypt.hash(password, 10);
     console.log(hashedPassword);
     // Validation passed
 
     pool.query(
-      //update new password
       `UPDATE public."user"
         SET pwd = $1
         WHERE email = $2`,
@@ -416,15 +339,15 @@ app.post("/users/profileManage/changePassword/:email", async (req, res) => {
   }
 });
 
-
 app.post("/users/profileManage/changeUsername", async (req, res) => {
-  let { name, email} = req.query;
+  let { name } = req.body;
 
   let errors = [];
+  let email = req.user.email;
   console.log({
     name
   });
-  //validate the input
+
   if (!name) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -435,7 +358,6 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
   else {
     // Validation passed
     pool.query(
-      //update name normally
       `UPDATE public."user"
         SET uname = $1
         WHERE email = $2`,
@@ -454,13 +376,14 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
 });
 
 app.post("/users/profileManage/changeEmail", async (req, res) => {
-  let { newEmail, email} = req.query;
+  let { newEmail } = req.body;
 
   let errors = [];
+  let email = req.user.email;
   console.log({
     newEmail
   });
-  //validate the input
+
   if (!newEmail) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -471,7 +394,6 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
   else {
     // Validation passed
     pool.query(
-      //pick the right email to change, since email is a primary key new email cant be the same as an existing email
       `SELECT * FROM public."user"
         WHERE email = $1`,
       [newEmail],
@@ -482,17 +404,14 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
         console.log(results.rows);
 
         if (results.rows.length > 0) {
-          console.log("Email is already registered");
+          console.log("Email already registered");
           return res.render("profileManage/changeEmail", {
             message: "Email already registered"
           });
         } else {
-          //outdated variable, temp is use because when the email is change the passportconfig.js cant update the session user information to match and error happens
-          //but since passportconfig is no longer use replacing it with email maybe fine (but im gonna leave it like this)
           let temp = email;
           req.logout();
           pool.query(
-            //update email normally
             `UPDATE public."user"
               SET email = $1
               WHERE email = $2`,
@@ -513,13 +432,13 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
   }
 });
 app.post("/users/profileManage/changeType", async (req, res) => {
-  //recieve type of user as string and user email
-  let { type, email } = req.query;
+  let { type } = req.body;
+
+  let email = req.user.email;
   console.log({
     type
   });
     pool.query(
-      //update user with the correct email
       `UPDATE public."user"
         SET utype = $1
         WHERE email = $2`,
@@ -537,25 +456,25 @@ app.post("/users/profileManage/changeType", async (req, res) => {
 });
 
 app.post("/users/profileManage/deleteUser", async (req, res) => {
-  let { email }= req.query;
+  let { email }= req.body;
 
   let errors = [];
   console.log({
     email
   });
-  //validation of the inputs
   if (!email) {
     errors.push({ message: "Please enter email" });
   }
 
+  if (email != req.user.email) {
+    errors.push({ message: "Please enter the correct email" });
+  }
 
   if (errors.length > 0) {
     res.render("profileManage/deleteUser.ejs", { errors, password});
   } 
   else {
-    //validation pass
     req.logout();
-    //logout to prevent an error by passportconfig tracking non existing user
     pool.query(
       `DELETE FROM public."user"
         WHERE email = $1`,
@@ -574,7 +493,7 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
 });
 
 app.post("/users/register", async (req, res) => {
-  let { name, email, password, password2 } = req.query;
+  let { name, email, password, password2 } = req.body;
 
   let errors = [];
 
@@ -584,7 +503,7 @@ app.post("/users/register", async (req, res) => {
     password,
     password2
   });
-  //valition of input
+
   if (!name || !email || !password || !password2) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -600,12 +519,10 @@ app.post("/users/register", async (req, res) => {
   if (errors.length > 0) {
     res.render("register", { errors, name, email, password, password2 });
   } else {
-    //hash the password
     hashedPassword = await bcrypt.hash(password, 10);
     console.log(hashedPassword);
     // Validation passed
     pool.query(
-      //check all email from all of user to see if one is already registered
       `SELECT * FROM public."user"
         WHERE email = $1`,
       [email],
@@ -614,13 +531,12 @@ app.post("/users/register", async (req, res) => {
           console.log(err);
         }
         console.log(results.rows);
-        //if found
+
         if (results.rows.length > 0) {
           return res.render("register", {
             message: "Email already registered"
           });
         } else {
-          //query insert new user normally with default type of normal user
           pool.query(
             `INSERT INTO public."user" (uname, email, pwd, utype)
                 VALUES ($1, $2, $3, $4)
@@ -642,73 +558,28 @@ app.post("/users/register", async (req, res) => {
   }
 });
 
-// app.post(
-//   "/users/login",
-//   passport.authenticate("local", {
-//     successRedirect: "/users/dashboard",
-//     failureRedirect: "/users/login",
-//     failureFlash: true
-//   })
-// );
+app.post("/users/login",
+  passport.authenticate("local", {
+    successRedirect: "/users/dashboard",
+    failureRedirect: "/users/login",
+    failureFlash: true
+  })
+);
 
-app.post("/users/login", async (req, res) => {
-  //recieve user input of email and password
-  let { email, password } = req.query;
-  pool.query(
-    //try to find all email that matches the user input
-    `SELECT * FROM public."user" WHERE email = $1`,
-    [email],
-    (err, results) => {
-      if (err) {
-        throw err;
-      }
-      console.log(results.rows);
-      //if found the email in db
-      if (results.rows.length > 0) {
-        const user = results.rows[0];
-        //check the password to see if it matches the store hashed password
-        bcrypt.compare(password, user.pwd, (err, isMatch) => {
-          if (err) {
-            console.log(err);
-          }
-          if (isMatch) {
-            //password is correct
-            //...
-          } else {
-            //password is incorrect
-            //...
-          }
-        });
-      } else {
-        // No user
-        //...
-        return done(null, false, {
-          message: "No user with that email address"
-        }
-        );
-      }
-    }
-  );
-});
+function checkAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return res.redirect("/users/dashboard");
+  }
+  next();
+}
 
-
-// function checkAuthenticated(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     return res.redirect("/users/dashboard");
-//   }
-//   next();
-// }
-
-// function checkNotAuthenticated(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     return next();
-//   }
-//   res.redirect("/users/login");
-// }
+function checkNotAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect("/users/login");
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-
-module.exports = app
