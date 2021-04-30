@@ -17,7 +17,7 @@ route.post("/workspace", async (req, res) => {
         "INSERT INTO Workspace (wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi , poweroutlet) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
         [wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi, poweroutlet]
       );
-      console.log(req.body);
+      console.log(req.query);
     } catch (err) {
       console.error(err.message);
     }
@@ -148,7 +148,7 @@ route.post("/pic/:WorkspaceID", async (req, res) => {
         "INSERT INTO ws_photo (photo1, photo2, photo3, WorkspaceID) VALUES($1,$2,$3,$4) RETURNING *",
         [photo1, photo2, photo3, WorkspaceID]
       );
-      console.log(req.body);
+      console.log(req.query);
     } catch (err) {
       console.error(err.message);
     }
@@ -208,7 +208,7 @@ route.post("/menu", async (req, res) => {
         "INSERT INTO ws_menu (menu1, menu2, menu3, WorkspaceID) VALUES($1,$2,$3,$4) RETURNING *",
         [menu1, menu2, menu3, WorkspaceID]
       );
-      console.log(req.body);
+      console.log(req.query);
     } catch (err) {
       console.error(err.message);
     }
@@ -267,7 +267,7 @@ route.post("/ophour", async (req, res) => {
         "INSERT INTO ws_oh ( WorkspaceID , mon , tue , wed , thu , fri , sat , sun ) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
         [ WorkspaceID , mon , tue , wed , thu , fri , sat , sun]
       );
-      console.log(req.body);
+      console.log(req.query);
     } catch (err) {
       console.error(err.message);
     }

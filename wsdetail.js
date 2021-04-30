@@ -7,7 +7,7 @@ const bp = require("body-parser")
 
 //middleware
 route.use(cors());
-route.use(express.json()); //req.body
+route.use(express.json()); //req.query
 
 
 //ROUTES//

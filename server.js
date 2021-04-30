@@ -14,7 +14,7 @@ const admin = require('./admin')
 const homepage = require('./homepage')
 const wsdetail = require('./wsdetail')
 
-app.use(express.json()); //req.body
+app.use(express.json()); //req.query
 
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
@@ -74,7 +74,7 @@ app.post("/give_feedback", async (req, res) => {
       "INSERT INTO give_feedback (email, WorkspaceID, feedbacktime, feedbackstatus) VALUES($1,$2,$3,$4) RETURNING *",
       [email, WorkspaceID, feedbacktime, feedbackstatus]
     );
-    console.log(req.body);
+    console.log(req.query);
   } catch (err) {
     console.error(err.message);
   }
@@ -129,7 +129,7 @@ app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
 
 app.get("/users/location", checkNotAuthenticated, (req, res) => {
   // console.log(req.isAuthenticated());
-  let locationID = req.body;
+  let locationID = req.query;
   pool.query(
     `SELECT * FROM public."workspace"
       WHERE $1 = workspaceID`,
@@ -250,7 +250,7 @@ app.get("/users/logout", (req, res) => {
 });
 
 app.post("/users/home", async (req, res) => {
-  let { heart } = req.body;
+  let { heart } = req.query;
 
   console.log({
     email
@@ -271,7 +271,7 @@ app.post("/users/home", async (req, res) => {
 });
 
 app.post("/users/forgotPassword", async (req, res) => {
-  let { email } = req.body;
+  let { email } = req.query;
   let errors = [];
   console.log({
     email
@@ -301,7 +301,7 @@ app.post("/users/forgotPassword", async (req, res) => {
 });
 
 app.post("/users/profileManage/changePassword", async (req, res) => {
-  let { password, password2 } = req.body;
+  let { password, password2 } = req.query;
 
   let errors = [];
   let email = req.user.email;
@@ -349,7 +349,7 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
 });
 
 app.post("/users/profileManage/changePassword/:email", async (req, res) => {
-  let { password, password2 } = req.body;
+  let { password, password2 } = req.query;
 
   let errors = [];
   let email = req.params.email;
@@ -398,7 +398,7 @@ app.post("/users/profileManage/changePassword/:email", async (req, res) => {
 });
 
 app.post("/users/profileManage/changeUsername", async (req, res) => {
-  let { name } = req.body;
+  let { name } = req.query;
 
   let errors = [];
   let email = req.user.email;
@@ -434,7 +434,7 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
 });
 
 app.post("/users/profileManage/changeEmail", async (req, res) => {
-  let { newEmail } = req.body;
+  let { newEmail } = req.query;
 
   let errors = [];
   let email = req.user.email;
@@ -490,7 +490,7 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
   }
 });
 app.post("/users/profileManage/changeType", async (req, res) => {
-  let { type } = req.body;
+  let { type } = req.query;
 
   let email = req.user.email;
   console.log({
@@ -514,7 +514,7 @@ app.post("/users/profileManage/changeType", async (req, res) => {
 });
 
 app.post("/users/profileManage/deleteUser", async (req, res) => {
-  let { email }= req.body;
+  let { email }= req.query;
 
   let errors = [];
   console.log({
@@ -551,7 +551,7 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
 });
 
 app.post("/users/register", async (req, res) => {
-  let { name, email, password, password2 } = req.body;
+  let { name, email, password, password2 } = req.query;
 
   let errors = [];
 

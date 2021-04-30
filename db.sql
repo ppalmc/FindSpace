@@ -24,7 +24,7 @@ CREATE TABLE Likes(
 );
 
 
--- req.body JSON in postman
+-- req.query JSON in postman
 {
     "WS_Des" : "such a beautiful place. Full of scumbag",
     "WSName" : "False Coffee",
