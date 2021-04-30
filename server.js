@@ -7,15 +7,17 @@ const session = require("express-session");
 require("dotenv").config();
 const app = express();
 
-const bp = require('body-parser')
 const cors = require("cors")
 
+//link to admin, homepage, wsdetail js file
 const admin = require('./admin')
 const homepage = require('./homepage')
 const wsdetail = require('./wsdetail')
 
 app.use(express.json()); //req.query
 
+
+//specify the server email
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -114,8 +116,6 @@ app.get("/users/register", (req, res) => {
 
 // app.get("/users/login", checkAuthenticated, (req, res) => {
 app.get("/users/login", (req, res) => {
-  // flash sets a messages variable. passport sets the error message
-  // console.log(req.session.flash.error);
   res.render("login.ejs");
 });
 
@@ -154,31 +154,37 @@ app.get("/users/dashboard", (req, res) => {
 // });
 
 //app.get("/users/home", checkNotAuthenticated, (req, res) => {
-app.get("/users/home", (req, res) => {
-  // var str = '';
-  pool.query(
-  `SELECT * FROM public."workspace"`,
-    (err, results) => {
-      if (err) {
-        throw err;
-      }
-      // for(x = 0; x < results.rowCount; x++){
-      //   console.log(x);
-      //   var result = Object.values(results.rows[x]);
-      //   str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
-      // }
-      res.render('home.ejs', {location : results.rows, count : results.rowCount});
-    }
-  )
-});
+// app.get("/users/home", (req, res) => {
+//   // var str = '';
+
+//   pool.query(
+//   `SELECT * FROM public."workspace"`,
+//     (err, results) => {
+//       if (err) {
+//         throw err;
+//       }
+//       // for(x = 0; x < results.rowCount; x++){
+//       //   console.log(x);
+//       //   var result = Object.values(results.rows[x]);
+//       //   str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
+//       // }
+//       res.render('home.ejs', {location : results.rows, count : results.rowCount});
+//     }
+//   )
+// });
 
 
 //app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
 app.get("/users/favorite", (req, res) => {
   // var str = '';
+
+
   let { email } = req.query;
+
+  //wsID count each id that is in favorite
   let wsID = new Array();
   pool.query(
+    //select all from favorite with the matching user email
   `SELECT * FROM public."favorite"
     WHERE email = $1`,
     [email],
@@ -186,6 +192,7 @@ app.get("/users/favorite", (req, res) => {
       if (err) {
         throw err;
       }
+      //change object into value and insert each value into wsID array
       for(i = 0; i < results.rowCount; i++){
         console.log(i);
         var result = Object.values(results.rows[i]);
@@ -193,8 +200,10 @@ app.get("/users/favorite", (req, res) => {
       }
       console.log(wsID);
 
+      //use wsID as an identifier to select the correct instance from workspace db
       for(z = 0; z < wsID.length; z++){
         pool.query(
+          //select all workspace that has a matching id
         `SELECT * FROM public."workspace"
           WHERE workspaceid = $1`,
           [wsID[z]],
@@ -218,36 +227,30 @@ app.get("/users/favorite", (req, res) => {
 
 //app.get("/users/profile", checkNotAuthenticated, (req, res) => {
 app.get("/users/profile", (req, res) => {
-  // console.log(req.isAuthenticated());
   res.render("profile.ejs",);
 });
 
 //app.get("/users/profileManage/changeEmail", checkNotAuthenticated, (req, res) => {
 app.get("/users/profileManage/changeEmail", (req, res) => {
-  // console.log(req.isAuthenticated());
   res.render("profileManage/changeEmail.ejs");
 });
 
 app.get("/users/profileManage/changePassword/:email", (req, res) => {
-  // console.log(req.isAuthenticated());
   res.render("profileManage/changePassword.ejs");
 });
 
 //app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res) => {
 app.get("/users/profileManage/changeUsername", (req, res) => {
-  // console.log(req.isAuthenticated());
   res.render("profileManage/changeUsername.ejs");
 });
 
 //app.get("/users/profileManage/changetype", checkNotAuthenticated, (req, res) => {
 app.get("/users/profileManage/changetype", (req, res) => {
-  // console.log(req.isAuthenticated());
   res.render("profileManage/changeType.ejs");
 });
 
 //app.get("/users/profileManage/deleteUser", checkNotAuthenticated, (req, res) => {
 app.get("/users/profileManage/deleteUser", (req, res) => {
-  // console.log(req.isAuthenticated());
   res.render("profileManage/deleteUser.ejs");
 });
 
@@ -257,12 +260,14 @@ app.get("/users/logout", (req, res) => {
 });
 
 app.post("/users/home", async (req, res) => {
+  //recieve wsID that needs to be favorite as heart variable
   let { heart } = req.query;
 
   console.log({
     email
   });
   pool.query(
+    //insert new worksapce into favorite
     `INSERT INTO public."favorite" (email, workspaceid)
       VALUES ($1, $2)`,
     [email, heart],
@@ -283,6 +288,7 @@ app.post("/users/forgotPassword", async (req, res) => {
   console.log({
     email
   });
+  //validate that the email is valid
   if (!email) {
     errors.push({ message: "Please enter your email"});
   }
@@ -291,7 +297,7 @@ app.post("/users/forgotPassword", async (req, res) => {
     res.render("forgotPassword.ejs", { errors, email});
   }
   else{
-      // Validation passed
+      // Validation passed, proceed to send password reset email with link to the reset page.
       transporter.sendMail({from:"prayforchulatinder@gmail.com",
                             to: email,
                             subject:"Findspace Password reset",
@@ -315,7 +321,7 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
     password,
     password2
   });
-
+  //validate that the input is valid
   if (!password || !password2) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -332,11 +338,13 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
     res.render("profileManage/changePassword.ejs", { errors, password, password2 });
   } 
   else {
+    //hash the password
     hashedPassword = await bcrypt.hash(password, 10);
     console.log(hashedPassword);
     // Validation passed
 
     pool.query(
+      //update new password
       `UPDATE public."user"
         SET pwd = $1
         WHERE email = $2`,
@@ -354,6 +362,8 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
   }
 });
 
+
+//this function is an overload function when user use the forget password function
 app.post("/users/profileManage/changePassword/:email", async (req, res) => {
   let { password, password2 } = req.query;
 
@@ -364,7 +374,7 @@ app.post("/users/profileManage/changePassword/:email", async (req, res) => {
     password,
     password2
   });
-
+  //validate the input
   if (!password || !password2) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -380,12 +390,15 @@ app.post("/users/profileManage/changePassword/:email", async (req, res) => {
   if (errors.length > 0) {
     res.render("profileManage/changePassword.ejs", { errors, password, password2 });
   } 
+
   else {
+    //hash the password
     hashedPassword = await bcrypt.hash(password, 10);
     console.log(hashedPassword);
     // Validation passed
 
     pool.query(
+      //update new password
       `UPDATE public."user"
         SET pwd = $1
         WHERE email = $2`,
@@ -403,6 +416,7 @@ app.post("/users/profileManage/changePassword/:email", async (req, res) => {
   }
 });
 
+
 app.post("/users/profileManage/changeUsername", async (req, res) => {
   let { name, email} = req.query;
 
@@ -410,7 +424,7 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
   console.log({
     name
   });
-
+  //validate the input
   if (!name) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -421,6 +435,7 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
   else {
     // Validation passed
     pool.query(
+      //update name normally
       `UPDATE public."user"
         SET uname = $1
         WHERE email = $2`,
@@ -445,7 +460,7 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
   console.log({
     newEmail
   });
-
+  //validate the input
   if (!newEmail) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -456,6 +471,7 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
   else {
     // Validation passed
     pool.query(
+      //pick the right email to change, since email is a primary key new email cant be the same as an existing email
       `SELECT * FROM public."user"
         WHERE email = $1`,
       [newEmail],
@@ -466,14 +482,17 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
         console.log(results.rows);
 
         if (results.rows.length > 0) {
-          console.log("Email already registered");
+          console.log("Email is already registered");
           return res.render("profileManage/changeEmail", {
             message: "Email already registered"
           });
         } else {
+          //outdated variable, temp is use because when the email is change the passportconfig.js cant update the session user information to match and error happens
+          //but since passportconfig is no longer use replacing it with email maybe fine (but im gonna leave it like this)
           let temp = email;
           req.logout();
           pool.query(
+            //update email normally
             `UPDATE public."user"
               SET email = $1
               WHERE email = $2`,
@@ -494,11 +513,13 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
   }
 });
 app.post("/users/profileManage/changeType", async (req, res) => {
+  //recieve type of user as string and user email
   let { type, email } = req.query;
   console.log({
     type
   });
     pool.query(
+      //update user with the correct email
       `UPDATE public."user"
         SET utype = $1
         WHERE email = $2`,
@@ -522,6 +543,7 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
   console.log({
     email
   });
+  //validation of the inputs
   if (!email) {
     errors.push({ message: "Please enter email" });
   }
@@ -531,7 +553,9 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
     res.render("profileManage/deleteUser.ejs", { errors, password});
   } 
   else {
+    //validation pass
     req.logout();
+    //logout to prevent an error by passportconfig tracking non existing user
     pool.query(
       `DELETE FROM public."user"
         WHERE email = $1`,
@@ -560,7 +584,7 @@ app.post("/users/register", async (req, res) => {
     password,
     password2
   });
-
+  //valition of input
   if (!name || !email || !password || !password2) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -576,10 +600,12 @@ app.post("/users/register", async (req, res) => {
   if (errors.length > 0) {
     res.render("register", { errors, name, email, password, password2 });
   } else {
+    //hash the password
     hashedPassword = await bcrypt.hash(password, 10);
     console.log(hashedPassword);
     // Validation passed
     pool.query(
+      //check all email from all of user to see if one is already registered
       `SELECT * FROM public."user"
         WHERE email = $1`,
       [email],
@@ -588,12 +614,13 @@ app.post("/users/register", async (req, res) => {
           console.log(err);
         }
         console.log(results.rows);
-
+        //if found
         if (results.rows.length > 0) {
           return res.render("register", {
             message: "Email already registered"
           });
         } else {
+          //query insert new user normally with default type of normal user
           pool.query(
             `INSERT INTO public."user" (uname, email, pwd, utype)
                 VALUES ($1, $2, $3, $4)
@@ -625,8 +652,10 @@ app.post("/users/register", async (req, res) => {
 // );
 
 app.post("/users/login", async (req, res) => {
+  //recieve user input of email and password
   let { email, password } = req.query;
   pool.query(
+    //try to find all email that matches the user input
     `SELECT * FROM public."user" WHERE email = $1`,
     [email],
     (err, results) => {
@@ -634,10 +663,10 @@ app.post("/users/login", async (req, res) => {
         throw err;
       }
       console.log(results.rows);
-
+      //if found the email in db
       if (results.rows.length > 0) {
         const user = results.rows[0];
-
+        //check the password to see if it matches the store hashed password
         bcrypt.compare(password, user.pwd, (err, isMatch) => {
           if (err) {
             console.log(err);
