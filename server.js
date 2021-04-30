@@ -106,13 +106,14 @@ app.get("/", (req, res) => {
   res.render("index.ejs");
 });
 
-app.get("/users/register", checkAuthenticated, (req, res) => {
+//app.get("/users/register", checkAuthenticated, (req, res) => {
+app.get("/users/register", (req, res) => {
   res.render("register.ejs");
 
 });
 
 // app.get("/users/login", checkAuthenticated, (req, res) => {
-app.get("/users/login", checkAuthenticated, (req, res) => {
+app.get("/users/login", (req, res) => {
   // flash sets a messages variable. passport sets the error message
   // console.log(req.session.flash.error);
   res.render("login.ejs");
@@ -123,34 +124,35 @@ app.get("/users/forgotPassword", checkAuthenticated, (req, res) => {
 });
 
 app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
-  console.log(req.isAuthenticated());
-  res.render("dashboard.ejs", { user: req.user.name });
+  let { email } = req.query;
+  res.render("dashboard.ejs", { user: email});
 });
 
-app.get("/users/location", checkNotAuthenticated, (req, res) => {
-  // console.log(req.isAuthenticated());
-  let locationID = req.query;
-  pool.query(
-    `SELECT * FROM public."workspace"
-      WHERE $1 = workspaceID`,
-      [locationID],
-      (err, results) => {
-        if (err) {
-          throw err;
-        }
-          console.log("reaches here");
-          console.log(results);
-          for(x = 0; x < results.rowCount; x++){
-            console.log(x);
-            var result = Object.values(results.rows[x]);
-            str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
-          }
-          res.render("location.ejs", { name: results.wsname, des: results.ws_des, lat: results.ws_lat, long: results.ws_long, seat : result.totalseat, outlet: results.poweroutlet, wifi: results.wifi  });
-      }
-  )
-});
+// app.get("/users/location", checkNotAuthenticated, (req, res) => {
+//   // console.log(req.isAuthenticated());
+//   let locationID = req.query;
+//   pool.query(
+//     `SELECT * FROM public."workspace"
+//       WHERE $1 = workspaceID`,
+//       [locationID],
+//       (err, results) => {
+//         if (err) {
+//           throw err;
+//         }
+//           console.log("reaches here");
+//           console.log(results);
+//           for(x = 0; x < results.rowCount; x++){
+//             console.log(x);
+//             var result = Object.values(results.rows[x]);
+//             str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
+//           }
+//           res.render("location.ejs");
+//       }
+//   )
+// });
 
-app.get("/users/home", checkNotAuthenticated, (req, res) => {
+//app.get("/users/home", checkNotAuthenticated, (req, res) => {
+app.get("/users/home", (req, res) => {
   // var str = '';
   pool.query(
   `SELECT * FROM public."workspace"`,
@@ -168,13 +170,16 @@ app.get("/users/home", checkNotAuthenticated, (req, res) => {
   )
 });
 
-app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
+
+//app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
+app.get("/users/favorite", (req, res) => {
   // var str = '';
+  let { email } = req.query;
   let wsID = new Array();
   pool.query(
   `SELECT * FROM public."favorite"
     WHERE email = $1`,
-    [req.user.email],
+    [email],
     (err, results) => {
       if (err) {
         throw err;
@@ -209,37 +214,37 @@ app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
   )
 });
 
-app.get("/users/profile", checkNotAuthenticated, (req, res) => {
+//app.get("/users/profile", checkNotAuthenticated, (req, res) => {
+app.get("/users/profile", (req, res) => {
   // console.log(req.isAuthenticated());
-  res.render("profile.ejs", { user: req.user.uname, email: req.user.email });
+  res.render("profile.ejs",);
 });
 
-app.get("/users/profileManage/changeEmail", checkNotAuthenticated, (req, res) => {
+//app.get("/users/profileManage/changeEmail", checkNotAuthenticated, (req, res) => {
+app.get("/users/profileManage/changeEmail", (req, res) => {
   // console.log(req.isAuthenticated());
   res.render("profileManage/changeEmail.ejs");
 });
-
-// app.get("/users/profileManage/changePassword", (req, res) => {
-//   // console.log(req.isAuthenticated());
-//   res.render("profileManage/changePassword.ejs");
-// });
 
 app.get("/users/profileManage/changePassword/:email", (req, res) => {
   // console.log(req.isAuthenticated());
   res.render("profileManage/changePassword.ejs");
 });
 
-app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res) => {
+//app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res) => {
+app.get("/users/profileManage/changeUsername", (req, res) => {
   // console.log(req.isAuthenticated());
   res.render("profileManage/changeUsername.ejs");
 });
 
-app.get("/users/profileManage/changetype", checkNotAuthenticated, (req, res) => {
+//app.get("/users/profileManage/changetype", checkNotAuthenticated, (req, res) => {
+app.get("/users/profileManage/changetype", (req, res) => {
   // console.log(req.isAuthenticated());
   res.render("profileManage/changeType.ejs");
 });
 
-app.get("/users/profileManage/deleteUser", checkNotAuthenticated, (req, res) => {
+//app.get("/users/profileManage/deleteUser", checkNotAuthenticated, (req, res) => {
+app.get("/users/profileManage/deleteUser", (req, res) => {
   // console.log(req.isAuthenticated());
   res.render("profileManage/deleteUser.ejs");
 });
@@ -301,10 +306,9 @@ app.post("/users/forgotPassword", async (req, res) => {
 });
 
 app.post("/users/profileManage/changePassword", async (req, res) => {
-  let { password, password2 } = req.query;
-
+  let { password, password2, email} = req.query;
   let errors = [];
-  let email = req.user.email;
+
   console.log({
     password,
     password2
@@ -398,10 +402,9 @@ app.post("/users/profileManage/changePassword/:email", async (req, res) => {
 });
 
 app.post("/users/profileManage/changeUsername", async (req, res) => {
-  let { name } = req.query;
+  let { name, email} = req.query;
 
   let errors = [];
-  let email = req.user.email;
   console.log({
     name
   });
@@ -434,10 +437,9 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
 });
 
 app.post("/users/profileManage/changeEmail", async (req, res) => {
-  let { newEmail } = req.query;
+  let { newEmail, email} = req.query;
 
   let errors = [];
-  let email = req.user.email;
   console.log({
     newEmail
   });
@@ -490,9 +492,7 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
   }
 });
 app.post("/users/profileManage/changeType", async (req, res) => {
-  let { type } = req.query;
-
-  let email = req.user.email;
+  let { type, email } = req.query;
   console.log({
     type
   });
@@ -524,9 +524,6 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
     errors.push({ message: "Please enter email" });
   }
 
-  if (email != req.user.email) {
-    errors.push({ message: "Please enter the correct email" });
-  }
 
   if (errors.length > 0) {
     res.render("profileManage/deleteUser.ejs", { errors, password});
@@ -616,28 +613,67 @@ app.post("/users/register", async (req, res) => {
   }
 });
 
-app.post(
-  "/users/login",
-  passport.authenticate("local", {
-    successRedirect: "/users/dashboard",
-    failureRedirect: "/users/login",
-    failureFlash: true
-  })
-);
+// app.post(
+//   "/users/login",
+//   passport.authenticate("local", {
+//     successRedirect: "/users/dashboard",
+//     failureRedirect: "/users/login",
+//     failureFlash: true
+//   })
+// );
 
-function checkAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return res.redirect("/users/dashboard");
-  }
-  next();
-}
+app.post("/users/login", async (req, res) => {
+  let { email, password } = req.query;
+  pool.query(
+    `SELECT * FROM public."user" WHERE email = $1`,
+    [email],
+    (err, results) => {
+      if (err) {
+        throw err;
+      }
+      console.log(results.rows);
 
-function checkNotAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect("/users/login");
-}
+      if (results.rows.length > 0) {
+        const user = results.rows[0];
+
+        bcrypt.compare(password, user.pwd, (err, isMatch) => {
+          if (err) {
+            console.log(err);
+          }
+          if (isMatch) {
+            //password is correct
+            //...
+          } else {
+            //password is incorrect
+            //...
+          }
+        });
+      } else {
+        // No user
+        //...
+        return done(null, false, {
+          message: "No user with that email address"
+        }
+        );
+      }
+    }
+  );
+});
+
+
+// function checkAuthenticated(req, res, next) {
+//   if (req.isAuthenticated()) {
+//     return res.redirect("/users/dashboard");
+//   }
+//   next();
+// }
+
+// function checkNotAuthenticated(req, res, next) {
+//   if (req.isAuthenticated()) {
+//     return next();
+//   }
+//   res.redirect("/users/login");
+// }
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
