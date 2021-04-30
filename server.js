@@ -301,7 +301,7 @@ app.post("/users/forgotPassword", async (req, res) => {
       transporter.sendMail({from:"prayforchulatinder@gmail.com",
                             to: email,
                             subject:"Findspace Password reset",
-                            html: `<h1>Click the link below you stupid</h1><a href="http://localhost:3000/users/profileManage/changePassword?email=${email}">LINK</a>`
+                            html: `<h1>Click the link to change your password</h1><a href="http://localhost:3000/users/profileManage/changePassword/${email}">LINK</a>`
                           }, function(error, info){
         if (error) {
           console.log(error);
