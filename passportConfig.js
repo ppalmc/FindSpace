@@ -2,7 +2,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const { pool } = require("./dbConfig");
 const bcrypt = require("bcrypt");
 
-function initialize(passport) {
+async function initialize(passport) {
   console.log("Initialized");
 
   const authenticateUser = (email, password, done) => {
@@ -55,14 +55,19 @@ function initialize(passport) {
   // In deserializeUser that key is matched with the in memory array / database or any data resource.
   // The fetched object is attached to the request object as req.user
 
-  passport.deserializeUser((email, done) => {
-    pool.query(`SELECT * FROM public."user" WHERE email = $1`, [email], (err, results) => {
-      if (err) {
-        return done(err);
-      }
-      console.log(`Email is ${results.rows[0].email}`);
-      return done(null, results.rows[0]);
-    });
+  passport.deserializeUser(async (email, done) => {
+    try{
+      pool.query(`SELECT * FROM public."user" WHERE email = $1`, [email], (err, results) => {
+        if (err) {
+          return done(err);
+        }
+        console.log(`Email is ${results.rows[0].email}`);
+        return done(null, results.rows[0]);
+      });
+    }
+    catch(e){
+      done(e);
+    }
   });
 }
 
