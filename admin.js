@@ -23,7 +23,7 @@ route.post("/workspace", async (req, res) => {
     }
 });
 
-// show all workspace
+// get all workspace
 route.get("/workspace", async (req, res) => {
     try {
       const allWorkspace = await pool.query("SELECT * FROM workspace");
@@ -32,6 +32,37 @@ route.get("/workspace", async (req, res) => {
       console.error(err.message);
     }
 });
+
+// get all ws_oh
+route.get("/ws_oh", async (req, res) => {
+    try {
+      const allws_oh = await pool.query("SELECT * FROM ws_oh");
+      res.json(allws_oh);
+    } catch (err) {
+      console.error(err.message);
+    }
+});
+
+// get all ws_menu
+route.get("/ws_menu", async (req, res) => {
+    try {
+      const allws_menu = await pool.query("SELECT * FROM ws_menu");
+      res.json(allws_menu);
+    } catch (err) {
+      console.error(err.message);
+    }
+});
+
+// get all ws_photo
+route.get("/ws_photo", async (req, res) => {
+    try {
+      const allws_photo = await pool.query("SELECT * FROM ws_photo");
+      res.json(allws_photo);
+    } catch (err) {
+      console.error(err.message);
+    }
+});
+
   
 //modify a workspace's WSName
 route.put("/workspace/wsname/:WorkspaceID", async (req, res) => {
@@ -396,4 +427,6 @@ route.get("/workspaceid", async (req, res) => {
       console.error(err.message);
     }
 });
+
+
 module.exports = route
