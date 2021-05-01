@@ -84,7 +84,7 @@ EXECUTE PROCEDURE add_to_wsphoto();
 -- trigger add to gives_feedback
 CREATE FUNCTION add_to_givesfeedback() RETURNS trigger AS $add_to_givesfeedback$
 	BEGIN
-		insert into gives_feedback (feedbacktime,feedbackstatus,email,workspace_id)
+		insert into gives_feedback (feedbacktime,feedbackstatus,email,workspaceid)
 		values ( CURRENT_TIMESTAMP, true , ' ' ,NEW.workspaceid);
                 RETURN NEW;
     END;
