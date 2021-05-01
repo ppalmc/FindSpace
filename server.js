@@ -235,8 +235,13 @@ app.get("/users/profileManage/changeEmail", (req, res) => {
   res.render("profileManage/changeEmail.ejs");
 });
 
-app.get("/users/profileManage/changePassword/:email", (req, res) => {
+app.get("/users/profileManage/changePassword", (req, res) => {
   res.render("profileManage/changePassword.ejs");
+});
+
+app.get("/users/profileManage/passwordReset/:email", (req, res) => {
+  // console.log(req.isAuthenticated());
+  res.render("profileManage/passwordReset.ejs", {email : req.params.email});
 });
 
 //app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res) => {
@@ -301,7 +306,7 @@ app.post("/users/forgotPassword", async (req, res) => {
       transporter.sendMail({from:"prayforchulatinder@gmail.com",
                             to: email,
                             subject:"Findspace Password reset",
-                            html: `<h1>Click the link to change your password</h1><a href="http://localhost:3000/users/profileManage/changePassword/${email}">LINK</a>`
+                            html: `<h1>Click the link below to change your password!</h1><a href="http://localhost:3000/users/profileManage/changePassword/${email}">LINK</a>`
                           }, function(error, info){
         if (error) {
           console.log(error);
@@ -362,19 +367,15 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
   }
 });
 
-
-//this function is an overload function when user use the forget password function
-app.post("/users/profileManage/changePassword/:email", async (req, res) => {
-  let { password, password2 } = req.query;
-
+app.post("/users/profileManage/passwordReset/", async (req, res) => {
+  let { password, password2, email } = req.body;
   let errors = [];
-  let email = req.params.email;
   console.log(email);
   console.log({
     password,
     password2
   });
-  //validate the input
+
   if (!password || !password2) {
     errors.push({ message: "Please enter all fields" });
   }
@@ -390,15 +391,12 @@ app.post("/users/profileManage/changePassword/:email", async (req, res) => {
   if (errors.length > 0) {
     res.render("profileManage/changePassword.ejs", { errors, password, password2 });
   } 
-
   else {
-    //hash the password
     hashedPassword = await bcrypt.hash(password, 10);
     console.log(hashedPassword);
     // Validation passed
 
     pool.query(
-      //update new password
       `UPDATE public."user"
         SET pwd = $1
         WHERE email = $2`,
@@ -410,12 +408,11 @@ app.post("/users/profileManage/changePassword/:email", async (req, res) => {
           console.log("reaches here");
           console.log(results);
           req.flash("success_msg", "Your password has been updated!");
-          res.redirect("/users/profile");
+          res.redirect("/users/login");
       }
     );
   }
 });
-
 
 app.post("/users/profileManage/changeUsername", async (req, res) => {
   let { name, email} = req.query;
