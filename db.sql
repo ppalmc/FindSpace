@@ -12,20 +12,6 @@ CREATE TABLE Workspace(
 );
 
 
-
-
--- req.query JSON in postman
-{
-    "WS_Des" : "such a beautiful place. Full of scumbag",
-    "WSName" : "False Coffee",
-    "WS_lat" : 13.8798710,
-    "WS_long" : 100.9081309,
-    "WS_link" : "Link Krub",
-    "wifi" : false,
-    "totalseats" : 180,
-    "poweroutlets" : 1
-}
-
 -- Arrange WS order by crowdednessStatus
 SELECT R1.workspaceid, R2.workspaceid,R2.wsname, R2.ws_lat, R2.ws_long, R1.ppl_in_WS, R2.totalseat, R1.ppl_in_WS/R2.totalseat AS crowdedness, R3.photo1, R3.photo2, R3.photo3, R4.feedbacktime, R4.feedbackstatus,
 CASE WHEN R1.ppl_in_WS/R2.totalseat<=0.25 THEN 1
@@ -52,7 +38,7 @@ ORDER BY crowdednessStatus ASC
 CREATE FUNCTION add_to_wsoh() RETURNS trigger AS $add_to_wsoh$
 	BEGIN
 		INSERT into ws_oh (workspaceid,mon,tue,wed,thu,fri,sat,sun)
-		values (NEW.workspaceid, ' ' , null ,null, null, null, null, null);
+		values (NEW.workspaceid, ' ' ,  ' ' , ' ',  ' ',  ' ',  ' ',  ' ');
         RETURN NEW;
     END;
 $add_to_wsoh$ LANGUAGE plpgsql;
@@ -68,7 +54,7 @@ EXECUTE PROCEDURE add_to_wsoh();
 CREATE FUNCTION add_to_wsmenu() RETURNS trigger AS $add_to_wsmenu$
 	BEGIN
 		insert into ws_menu (workspaceid,menu1,menu2,menu3)
-		values (NEW.workspaceid, ' ' , null ,null);
+		values (NEW.workspaceid, ' ' ,  ' ' , ' ');
                 RETURN NEW;
     END;
 $add_to_wsmenu$ LANGUAGE plpgsql;
@@ -84,7 +70,7 @@ EXECUTE PROCEDURE add_to_wsmenu();
 CREATE FUNCTION add_to_wsphoto() RETURNS trigger AS $add_to_wsphoto$
 	BEGIN
 		insert into ws_photo (workspaceid,photo1,photo2,photo3)
-		values (NEW.workspaceid, ' ' , null ,null);
+		values (NEW.workspaceid, ' ' , ' ', ' ');
                 RETURN NEW;
     END;
 $add_to_wsphoto$ LANGUAGE plpgsql;
@@ -93,6 +79,23 @@ CREATE TRIGGER new_workspace_add_photo
 AFTER INSERT ON workspace
 FOR EACH ROW
 EXECUTE PROCEDURE add_to_wsphoto();
+
+
+-- trigger add to gives_feedback
+CREATE FUNCTION add_to_givesfeedback() RETURNS trigger AS $add_to_givesfeedback$
+	BEGIN
+		insert into gives_feedback (feedbacktime,feedbackstatus,email,workspace_id)
+		values ( CURRENT_TIMESTAMP, true , ' ' ,NEW.workspaceid);
+                RETURN NEW;
+    END;
+$add_to_givesfeedback$ LANGUAGE plpgsql;
+
+CREATE TRIGGER new_workspace_add_feedback
+AFTER INSERT ON workspace
+FOR EACH ROW
+EXECUTE PROCEDURE add_to_givesfeedback();
+
+
 
 
 

@@ -74,13 +74,14 @@ app.get("/search", async (req, res) => {
   }
 });
 
-app.post("/give_feedback", async (req, res) => {
-  console.log(req.query);
+// update current feedback record
+app.put("/gives_feedback/:workspaceID", async (req, res) => {
   try {
-    const { email, WorkspaceID, feedbacktime, feedbackstatus } = req.query;
+    const { workspaceID } = req.params;
+    const { email, feedbacktime, feedbackstatus } = req.query;
     const newfeedback = await pool.query(
-      "INSERT INTO gives_feedback (email, WorkspaceID, feedbacktime, feedbackstatus) VALUES($1,$2,$3,$4) RETURNING *",
-      [email, WorkspaceID, feedbacktime, feedbackstatus]
+      "INSERT INTO gives_feedback (email, feedbacktime, feedbackstatus) VALUES($1,$2,$3) WHERE workspaceID = $4 RETURNING *",
+      [email, feedbacktime, feedbackstatus, workspaceID]
     );
     console.log(req.query);
   } catch (err) {
