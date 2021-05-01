@@ -375,4 +375,25 @@ route.put("/ophour/sun/:WorkspaceID", async (req, res) => {
     }
 });
 
+
+// get workspaceid from other info
+route.get("/workspaceid", async (req, res) => {
+    try {
+      const wsname = req.query.wsname;
+      const ws_des = req.query.ws_des;
+      const ws_lat = req.query.ws_lat;
+      const ws_long = req.query.ws_long;
+      const ws_link = req.query.ws_link;
+      const totalseat = req.query.totalseat;
+      const wifi = req.query.wifi;
+      const poweroutlet = req.query.poweroutlet;
+      const newWorkspace = await pool.query(
+        "SELECT workspaceid FROM Workspace WHERE wsname = $1 AND ws_des = $2 AND ws_lat = $3 AND ws_long = $4 AND ws_link = $5 AND totalseat = $6 AND wifi = $7 AND poweroutlet = $8",
+        [wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi, poweroutlet]
+      );
+      console.log(req.query);
+    } catch (err) {
+      console.error(err.message);
+    }
+});
 module.exports = route
