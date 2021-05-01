@@ -67,3 +67,58 @@ FROM ( SELECT DISTINCT workspaceid, SUM(H.num_in_out) AS ppl_in_WS
         
 WHERE R1.workspaceid = R2.workspaceid AND R1.workspaceid = R3.workspaceid AND R1.workspaceid = R4.workspaceid
 ORDER BY crowdednessStatus ASC
+
+
+
+CREATE FUNCTION add_to_wsoh() RETURNS trigger AS $add_to_wsoh$
+	BEGIN
+		INSERT into ws_oh (workspaceid,mon,tue,wed,thu,fri,sat,sun)
+		values (NEW.workspaceid, ' ' , null ,null, null, null, null, null);
+        RETURN NEW;
+    END;
+$add_to_wsoh$ LANGUAGE plpgsql;
+
+
+CREATE FUNCTION add_to_wsmenu() RETURNS trigger AS $add_to_wsmenu$
+	BEGIN
+		insert into ws_menu (workspaceid,menu1,menu2,menu3)
+		values (NEW.workspaceid, ' ' , null ,null);
+                RETURN NEW;
+    END;
+$add_to_wsmenu$ LANGUAGE plpgsql;
+
+
+CREATE FUNCTION add_to_wsphoto() RETURNS trigger AS $add_to_wsphoto$
+	BEGIN
+		insert into ws_photo (workspaceid,photo1,photo2,photo3)
+		values (NEW.workspaceid, ' ' , null ,null);
+                RETURN NEW;
+    END;
+$add_to_wsphoto$ LANGUAGE plpgsql;
+
+
+
+
+
+
+
+CREATE TRIGGER new_workspace_add_oh
+AFTER INSERT ON workspace
+FOR EACH ROW
+EXECUTE PROCEDURE add_to_wsoh();
+
+CREATE TRIGGER new_workspace_add_menu
+AFTER INSERT ON workspace
+FOR EACH ROW
+EXECUTE PROCEDURE add_to_wsmenu();
+
+CREATE TRIGGER new_workspace_add_photo
+AFTER INSERT ON workspace
+FOR EACH ROW
+EXECUTE PROCEDURE add_to_wsphoto();
+
+
+
+INSERT INTO public.workspace(
+	wsname, ws_des, poweroutlet, wifi, totalseat, ws_link,  ws_lat, ws_long)
+	VALUES ('f', 'f', 45, true, 100, 'kk',  31, 9);

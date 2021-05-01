@@ -23,7 +23,6 @@ route.post("/workspace", async (req, res) => {
     }
 });
 
-
 // show all workspace
 route.get("/workspace", async (req, res) => {
     try {
@@ -34,7 +33,6 @@ route.get("/workspace", async (req, res) => {
     }
 });
   
-
 //modify a workspace's WSName
 route.put("/workspace/wsname/:WorkspaceID", async (req, res) => {
     try {
@@ -199,7 +197,6 @@ route.put("/pic/photo3/:WorkspaceID", async (req, res) => {
     }
 });
 
-
 // add new menu record to a workspace
 route.post("/menu", async (req, res) => {
     try {
@@ -304,7 +301,7 @@ route.put("/ophour/tue/:WorkspaceID", async (req, res) => {
 });
 
 // update time on wednesday
-route.put("/ophour/mon/:WorkspaceID", async (req, res) => {
+route.put("/ophour/wed/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { time } = req.query;
