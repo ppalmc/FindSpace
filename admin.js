@@ -23,8 +23,7 @@ route.post("/workspace", async (req, res) => {
     }
 });
 
-
-// show all workspace
+// get all workspace
 route.get("/workspace", async (req, res) => {
     try {
       const allWorkspace = await pool.query("SELECT * FROM workspace");
@@ -33,8 +32,38 @@ route.get("/workspace", async (req, res) => {
       console.error(err.message);
     }
 });
-  
 
+// get all ws_oh
+route.get("/ws_oh", async (req, res) => {
+    try {
+      const allws_oh = await pool.query("SELECT * FROM ws_oh");
+      res.json(allws_oh);
+    } catch (err) {
+      console.error(err.message);
+    }
+});
+
+// get all ws_menu
+route.get("/ws_menu", async (req, res) => {
+    try {
+      const allws_menu = await pool.query("SELECT * FROM ws_menu");
+      res.json(allws_menu);
+    } catch (err) {
+      console.error(err.message);
+    }
+});
+
+// get all ws_photo
+route.get("/ws_photo", async (req, res) => {
+    try {
+      const allws_photo = await pool.query("SELECT * FROM ws_photo");
+      res.json(allws_photo);
+    } catch (err) {
+      console.error(err.message);
+    }
+});
+
+  
 //modify a workspace's WSName
 route.put("/workspace/wsname/:WorkspaceID", async (req, res) => {
     try {
@@ -199,7 +228,6 @@ route.put("/pic/photo3/:WorkspaceID", async (req, res) => {
     }
 });
 
-
 // add new menu record to a workspace
 route.post("/menu", async (req, res) => {
     try {
@@ -304,7 +332,7 @@ route.put("/ophour/tue/:WorkspaceID", async (req, res) => {
 });
 
 // update time on wednesday
-route.put("/ophour/mon/:WorkspaceID", async (req, res) => {
+route.put("/ophour/wed/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
         const { time } = req.query;
@@ -377,5 +405,28 @@ route.put("/ophour/sun/:WorkspaceID", async (req, res) => {
         console.error(err.message);
     }
 });
+
+
+// get workspaceid from other info
+route.get("/workspaceid", async (req, res) => {
+    try {
+      const wsname = req.query.wsname;
+      const ws_des = req.query.ws_des;
+      const ws_lat = req.query.ws_lat;
+      const ws_long = req.query.ws_long;
+      const ws_link = req.query.ws_link;
+      const totalseat = req.query.totalseat;
+      const wifi = req.query.wifi;
+      const poweroutlet = req.query.poweroutlet;
+      const newWorkspace = await pool.query(
+        "SELECT workspaceid FROM Workspace WHERE wsname = $1 AND ws_des = $2 AND ws_lat = $3 AND ws_long = $4 AND ws_link = $5 AND totalseat = $6 AND wifi = $7 AND poweroutlet = $8",
+        [wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi, poweroutlet]
+      );
+      console.log(req.query);
+    } catch (err) {
+      console.error(err.message);
+    }
+});
+
 
 module.exports = route

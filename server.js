@@ -20,18 +20,17 @@ app.use(express.json()); //req.query
 //specify the server email
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
-    user: 'prayforchulatinder@gmail.com',
-    pass: 'chulatinder'
-  }
+    user: "prayforchulatinder@gmail.com",
+    pass: "chulatinder",
+  },
 });
 
 const PORT = process.env.PORT || 5678;
 
 const initializePassport = require("./passportConfig");
 app.use(cors());
-
 
 initializePassport(passport);
 
@@ -40,40 +39,47 @@ initializePassport(passport);
 // Parses details from a form
 app.use(express.urlencoded({ extended: true }));
 // app.set("view engine", 'ejs');
-app.set("view engine", 'pug');
+app.set("view engine", "pug");
 
-app.use('/admin', admin)
-app.use('/homepage', homepage)
-app.use('/wsdetail', wsdetail)
+app.use("/admin", admin);
+app.use("/homepage", homepage);
+app.use("/wsdetail", wsdetail);
 
 app.get("/search", async (req, res) => {
   try {
-    if(req.query.id != null) {
-      const numinout = await pool.query("SELECT wsname, workspaceid FROM workspace WHERE LOWER(wsname) LIKE LOWER('%"+req.query.id+"%')");
-      res.render('test',{
-        student:numinout.rows
+    if (req.query.id != null) {
+      const numinout = await pool.query(
+        "SELECT wsname, workspaceid FROM workspace WHERE LOWER(wsname) LIKE LOWER('%" +
+          req.query.id +
+          "%')"
+      );
+      res.render("test", {
+        student: numinout.rows,
       });
-      
+
       console.log(numinout.rows);
       res.json(numinout.rows);
-    }else{
-      const numinout = await pool.query("SELECT wsname, workspaceid FROM workspace");
-      res.render('test',{
-        student:numinout.rows
+    } else {
+      const numinout = await pool.query(
+        "SELECT wsname, workspaceid FROM workspace"
+      );
+      res.render("test", {
+        student: numinout.rows,
       });
       console.log("Query!");
-      console.log(numinout.rows)
-     }
+      console.log(numinout.rows);
+    }
   } catch (err) {
     console.error(err.message);
   }
 });
 
 app.post("/give_feedback", async (req, res) => {
+  console.log(req.query);
   try {
     const { email, WorkspaceID, feedbacktime, feedbackstatus } = req.query;
     const newfeedback = await pool.query(
-      "INSERT INTO give_feedback (email, WorkspaceID, feedbacktime, feedbackstatus) VALUES($1,$2,$3,$4) RETURNING *",
+      "INSERT INTO gives_feedback (email, WorkspaceID, feedbacktime, feedbackstatus) VALUES($1,$2,$3,$4) RETURNING *",
       [email, WorkspaceID, feedbacktime, feedbackstatus]
     );
     console.log(req.query);
@@ -82,11 +88,9 @@ app.post("/give_feedback", async (req, res) => {
   }
 });
 
-app.get('/subscription', async (req,res)=>{
-  res.sendFile(__dirname+'/ggPay.html');
+app.get("/subscription", async (req, res) => {
+  res.sendFile(__dirname + "/ggPay.html");
 });
-
-
 
 app.use(
   session({
@@ -95,7 +99,7 @@ app.use(
     // Should we resave our session variables if nothing has changes which we dont
     resave: false,
     // Save empty value if there is no vaue which we do not want to do
-    saveUninitialized: false
+    saveUninitialized: false,
   })
 );
 // Funtion inside passport which initializes passport
@@ -111,7 +115,6 @@ app.get("/", (req, res) => {
 //app.get("/users/register", checkAuthenticated, (req, res) => {
 app.get("/users/register", (req, res) => {
   res.render("register.ejs");
-
 });
 
 // app.get("/users/login", checkAuthenticated, (req, res) => {
@@ -173,7 +176,6 @@ app.get("/users/dashboard", (req, res) => {
 //   )
 // });
 
-
 //app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
 app.get("/users/favorite", (req, res) => {
   // var str = '';
@@ -184,8 +186,7 @@ app.get("/users/favorite", (req, res) => {
   //wsID count each id that is in favorite
   let wsID = new Array();
   pool.query(
-    //select all from favorite with the matching user email
-  `SELECT * FROM public."favorite"
+    `SELECT * FROM public."favorite"
     WHERE email = $1`,
     [email],
     (err, results) => {
@@ -196,7 +197,7 @@ app.get("/users/favorite", (req, res) => {
       for(i = 0; i < results.rowCount; i++){
         console.log(i);
         var result = Object.values(results.rows[i]);
-        wsID.push (result[1]);
+        wsID.push(result[1]);
       }
       console.log(wsID);
 
@@ -217,12 +218,12 @@ app.get("/users/favorite", (req, res) => {
             //   str = str + '\n'+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'\n'+'|';
             // }
             // console.log(str);
-            res.render('favorite.ejs', {location : results.rows});
+            res.render("favorite.ejs", { location: results.rows });
           }
-        )
+        );
       }
     }
-  )
+  );
 });
 
 //app.get("/users/profile", checkNotAuthenticated, (req, res) => {
@@ -269,7 +270,7 @@ app.post("/users/home", async (req, res) => {
   let { heart } = req.query;
 
   console.log({
-    email
+    email,
   });
   pool.query(
     //insert new worksapce into favorite
@@ -280,9 +281,9 @@ app.post("/users/home", async (req, res) => {
       if (err) {
         throw err;
       }
-        console.log("reaches here");
-        console.log(results);
-        req.flash("success_msg", "Your favorite place has been updated!");
+      console.log("reaches here");
+      console.log(results);
+      req.flash("success_msg", "Your favorite place has been updated!");
     }
   );
 });
@@ -291,11 +292,11 @@ app.post("/users/forgotPassword", async (req, res) => {
   let { email } = req.query;
   let errors = [];
   console.log({
-    email
+    email,
   });
   //validate that the email is valid
   if (!email) {
-    errors.push({ message: "Please enter your email"});
+    errors.push({ message: "Please enter your email" });
   }
 
   if (errors.length > 0) {
@@ -311,20 +312,21 @@ app.post("/users/forgotPassword", async (req, res) => {
         if (error) {
           console.log(error);
         } else {
-          console.log('Email sent: ' + info.response);
+          console.log("Email sent: " + info.response);
           res.redirect("/users/login");
         }
-      });
+      }
+    );
   }
 });
 
 app.post("/users/profileManage/changePassword", async (req, res) => {
-  let { password, password2, email} = req.query;
+  let { password, password2, email } = req.query;
   let errors = [];
 
   console.log({
     password,
-    password2
+    password2,
   });
   //validate that the input is valid
   if (!password || !password2) {
@@ -358,10 +360,10 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
         if (err) {
           throw err;
         }
-          console.log("reaches here");
-          console.log(results);
-          req.flash("success_msg", "Your password has been updated!");
-          res.redirect("/users/profile");
+        console.log("reaches here");
+        console.log(results);
+        req.flash("success_msg", "Your password has been updated!");
+        res.redirect("/users/profile");
       }
     );
   }
@@ -373,7 +375,7 @@ app.post("/users/profileManage/passwordReset/", async (req, res) => {
   console.log(email);
   console.log({
     password,
-    password2
+    password2,
   });
 
   if (!password || !password2) {
@@ -405,21 +407,21 @@ app.post("/users/profileManage/passwordReset/", async (req, res) => {
         if (err) {
           throw err;
         }
-          console.log("reaches here");
-          console.log(results);
-          req.flash("success_msg", "Your password has been updated!");
-          res.redirect("/users/login");
+        console.log("reaches here");
+        console.log(results);
+        req.flash("success_msg", "Your password has been updated!");
+        res.redirect("/users/profile");
       }
     );
   }
 });
 
 app.post("/users/profileManage/changeUsername", async (req, res) => {
-  let { name, email} = req.query;
+  let { name, email } = req.query;
 
   let errors = [];
   console.log({
-    name
+    name,
   });
   //validate the input
   if (!name) {
@@ -428,8 +430,7 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
 
   if (errors.length > 0) {
     res.render("profileManage/changeUsername.ejs", { errors, name });
-  } 
-  else {
+  } else {
     // Validation passed
     pool.query(
       //update name normally
@@ -441,21 +442,21 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
         if (err) {
           throw err;
         }
-          console.log("reaches here");
-          console.log(results);
-          req.flash("success_msg", "Your username has been updated!");
-          res.redirect("/users/profile");
+        console.log("reaches here");
+        console.log(results);
+        req.flash("success_msg", "Your username has been updated!");
+        res.redirect("/users/profile");
       }
     );
   }
 });
 
 app.post("/users/profileManage/changeEmail", async (req, res) => {
-  let { newEmail, email} = req.query;
+  let { newEmail, email } = req.query;
 
   let errors = [];
   console.log({
-    newEmail
+    newEmail,
   });
   //validate the input
   if (!newEmail) {
@@ -464,8 +465,7 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
 
   if (errors.length > 0) {
     res.render("profileManage/changeEmail.ejs", { errors, email });
-  } 
-  else {
+  } else {
     // Validation passed
     pool.query(
       //pick the right email to change, since email is a primary key new email cant be the same as an existing email
@@ -481,7 +481,7 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
         if (results.rows.length > 0) {
           console.log("Email is already registered");
           return res.render("profileManage/changeEmail", {
-            message: "Email already registered"
+            message: "Email already registered",
           });
         } else {
           //outdated variable, temp is use because when the email is change the passportconfig.js cant update the session user information to match and error happens
@@ -513,38 +513,36 @@ app.post("/users/profileManage/changeType", async (req, res) => {
   //recieve type of user as string and user email
   let { type, email } = req.query;
   console.log({
-    type
+    type,
   });
-    pool.query(
-      //update user with the correct email
-      `UPDATE public."user"
+  pool.query(
+    `UPDATE public."user"
         SET utype = $1
         WHERE email = $2`,
-      [type, email],
-      (err, results) => {
-        if (err) {
-          throw err;
-        }
-        console.log("reaches here");
-        console.log(results);
-        req.flash("success_msg", "Your type has been updated!");
-        res.redirect("/users/profile");
+    [type, email],
+    (err, results) => {
+      if (err) {
+        throw err;
       }
-    );
+      console.log("reaches here");
+      console.log(results);
+      req.flash("success_msg", "Your type has been updated!");
+      res.redirect("/users/profile");
+    }
+  );
 });
 
 app.post("/users/profileManage/deleteUser", async (req, res) => {
-  let { email }= req.query;
+  let { email } = req.query;
 
   let errors = [];
   console.log({
-    email
+    email,
   });
   //validation of the inputs
   if (!email) {
     errors.push({ message: "Please enter email" });
   }
-
 
   if (errors.length > 0) {
     res.render("profileManage/deleteUser.ejs", { errors, password});
@@ -561,10 +559,10 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
         if (err) {
           throw err;
         }
-          console.log("reaches here");
-          console.log(results);
-          req.flash("success_msg", "Your account has been succesfully deleted.");
-          res.render("index");
+        console.log("reaches here");
+        console.log(results);
+        req.flash("success_msg", "Your account has been succesfully deleted.");
+        res.render("index");
       }
     );
   }
@@ -579,7 +577,7 @@ app.post("/users/register", async (req, res) => {
     name,
     email,
     password,
-    password2
+    password2,
   });
   //valition of input
   if (!name || !email || !password || !password2) {
@@ -614,7 +612,7 @@ app.post("/users/register", async (req, res) => {
         //if found
         if (results.rows.length > 0) {
           return res.render("register", {
-            message: "Email already registered"
+            message: "Email already registered",
           });
         } else {
           //query insert new user normally with default type of normal user
@@ -622,7 +620,7 @@ app.post("/users/register", async (req, res) => {
             `INSERT INTO public."user" (uname, email, pwd, utype)
                 VALUES ($1, $2, $3, $4)
                 RETURNING email, pwd`,
-            [name, email, hashedPassword, 'user'],
+            [name, email, hashedPassword, "user"],
             (err, results) => {
               if (err) {
                 throw err;
@@ -666,28 +664,28 @@ app.post("/users/login", async (req, res) => {
         //check the password to see if it matches the store hashed password
         bcrypt.compare(password, user.pwd, (err, isMatch) => {
           if (err) {
-            console.log(err);
+            res.sendStatus(500);
           }
           if (isMatch) {
             //password is correct
+            res.json("matched");
+            // return ("matched");
             //...
           } else {
             //password is incorrect
+            res.json("password incorrect");
             //...
           }
         });
       } else {
         // No user
+        console.log("no user found");
         //...
-        return done(null, false, {
-          message: "No user with that email address"
-        }
-        );
+        res.json("no user found");
       }
     }
   );
 });
-
 
 // function checkAuthenticated(req, res, next) {
 //   if (req.isAuthenticated()) {
@@ -707,5 +705,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-
-module.exports = app
+module.exports = app;
