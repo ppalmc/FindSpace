@@ -66,7 +66,7 @@ EXECUTE PROCEDURE add_to_wsmenu();
 
 
 
--- trigger add to ws_menu
+-- trigger add to ws_photo
 CREATE FUNCTION add_to_wsphoto() RETURNS trigger AS $add_to_wsphoto$
 	BEGIN
 		insert into ws_photo (workspaceid,photo1,photo2,photo3)
