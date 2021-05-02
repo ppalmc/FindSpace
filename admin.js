@@ -168,20 +168,7 @@ route.delete("/workspace/:WorkspaceID", async (req, res) => {
     }
 });
 
-// add new photo record to a workspace
-route.post("/pic/:WorkspaceID", async (req, res) => {
-    try {
-    const { WorkspaceID } = req.params;
-      const {photo1, photo2, photo3 } = req.query;
-      const newMenurec = await pool.query(
-        "INSERT INTO ws_photo (photo1, photo2, photo3, WorkspaceID) VALUES($1,$2,$3,$4) RETURNING *",
-        [photo1, photo2, photo3, WorkspaceID]
-      );
-      console.log(req.query);
-    } catch (err) {
-      console.error(err.message);
-    }
-});
+
 
 // update photo1
 route.put("/pic/photo1/:WorkspaceID", async (req, res) => {
@@ -228,19 +215,6 @@ route.put("/pic/photo3/:WorkspaceID", async (req, res) => {
     }
 });
 
-// add new menu record to a workspace
-route.post("/menu", async (req, res) => {
-    try {
-      const {menu1, menu2, menu3, WorkspaceID } = req.query;
-      const newMenurec = await pool.query(
-        "INSERT INTO ws_menu (menu1, menu2, menu3, WorkspaceID) VALUES($1,$2,$3,$4) RETURNING *",
-        [menu1, menu2, menu3, WorkspaceID]
-      );
-      console.log(req.query);
-    } catch (err) {
-      console.error(err.message);
-    }
-});
 
 // update menu1
 route.put("/pic/menu1/:WorkspaceID", async (req, res) => {
@@ -418,11 +392,11 @@ route.get("/workspaceid", async (req, res) => {
       const totalseat = req.query.totalseat;
       const wifi = req.query.wifi;
       const poweroutlet = req.query.poweroutlet;
-      const newWorkspace = await pool.query(
+      const yourWorkspaceID = await pool.query(
         "SELECT workspaceid FROM Workspace WHERE wsname = $1 AND ws_des = $2 AND ws_lat = $3 AND ws_long = $4 AND ws_link = $5 AND totalseat = $6 AND wifi = $7 AND poweroutlet = $8",
         [wsname, ws_des, ws_lat, ws_long, ws_link, totalseat, wifi, poweroutlet]
       );
-      console.log(req.query);
+      res.json(yourWorkspaceID.rows)
     } catch (err) {
       console.error(err.message);
     }

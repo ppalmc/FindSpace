@@ -80,8 +80,8 @@ app.put("/gives_feedback/:workspaceID", async (req, res) => {
     const { workspaceID } = req.params;
     const { feedbacktime, feedbackstatus, email } = req.query;
     const newfeedback = await pool.query(
-      "UPDATE gives_feedback SET feedbacktime = $1 , feedbackstatus = $2 , email = $3 WHERE WorkspaceID = $4"
-      [ feedbacktime, feedbackstatus, workspaceID, email]
+      "UPDATE gives_feedback SET feedbacktime = $1 , feedbackstatus = $2 , email = $3 WHERE WorkspaceID = $4",
+      [ feedbacktime, feedbackstatus, email, workspaceID]
     );
     console.log(req.query);
   } catch (err) {
