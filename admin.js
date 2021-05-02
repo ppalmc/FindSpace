@@ -155,7 +155,7 @@ route.put("/workspace/poweroutlets/:WorkspaceID", async (req, res) => {
 });
   
 //delete a workspace
-route.delete("/workspace/:Workspace_ID", async (req, res) => {
+route.delete("/workspace/:WorkspaceID", async (req, res) => {
     try {
       const { WorkspaceID } = req.params;
       const deleteWorkspace = await pool.query(

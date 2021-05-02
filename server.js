@@ -78,10 +78,10 @@ app.get("/search", async (req, res) => {
 app.put("/gives_feedback/:workspaceID", async (req, res) => {
   try {
     const { workspaceID } = req.params;
-    const { email, feedbacktime, feedbackstatus } = req.query;
+    const { feedbacktime, feedbackstatus, email } = req.query;
     const newfeedback = await pool.query(
-      "UPDATE gives_feedback SET email=$1 AND feedbacktime = $2 AND feedbackstatus = $3 WHERE WorkspaceID = $4"
-      [email, feedbacktime, feedbackstatus, workspaceID]
+      "UPDATE gives_feedback SET feedbacktime = $1 , feedbackstatus = $2 , email = $3 WHERE WorkspaceID = $4"
+      [ feedbacktime, feedbackstatus, workspaceID, email]
     );
     console.log(req.query);
   } catch (err) {
