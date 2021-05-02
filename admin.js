@@ -305,10 +305,10 @@ route.post("/ophour", async (req, res) => {
 route.put("/ophour/mon/:WorkspaceID", async (req, res) => {
     try {
         const { WorkspaceID } = req.params;
-        const { time } = req.query;
+        const {mon , tue , wed , thu , fri , sat , sun} = req.query;
         const updateOphour = await pool.query(
         "UPDATE ws_oh SET mon = $1 WHERE WorkspaceID = $2",
-        [time, WorkspaceID]
+        [mon, WorkspaceID]
         );
         res.json("Mon Ophour was updated!");
     } catch (err) {
@@ -427,6 +427,5 @@ route.get("/workspaceid", async (req, res) => {
       console.error(err.message);
     }
 });
-
 
 module.exports = route
