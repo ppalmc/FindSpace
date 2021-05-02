@@ -7,18 +7,17 @@ const session = require("express-session");
 require("dotenv").config();
 const app = express();
 
-const cors = require("cors")
+const cors = require("cors");
 
 //link to admin, homepage, wsdetail js file
-const admin = require('./admin')
-const homepage = require('./homepage')
-const wsdetail = require('./wsdetail')
+const admin = require("./admin");
+const homepage = require("./homepage");
+const wsdetail = require("./wsdetail");
 
 app.use(express.json()); //req.query
 
-
 //specify the server email
-var nodemailer = require('nodemailer');
+var nodemailer = require("nodemailer");
 var transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -80,8 +79,9 @@ app.put("/gives_feedback/:workspaceID", async (req, res) => {
     const { workspaceID } = req.params;
     const { feedbacktime, feedbackstatus, email } = req.query;
     const newfeedback = await pool.query(
-      "UPDATE gives_feedback SET feedbacktime = $1 , feedbackstatus = $2 , email = $3 WHERE WorkspaceID = $4"
-      [ feedbacktime, feedbackstatus, workspaceID, email]
+      "UPDATE gives_feedback SET feedbacktime = $1 , feedbackstatus = $2 , email = $3 WHERE WorkspaceID = $4"[
+        (feedbacktime, feedbackstatus, workspaceID, email)
+      ]
     );
     console.log(req.query);
   } catch (err) {
@@ -131,7 +131,7 @@ app.get("/users/forgotPassword", (req, res) => {
 //app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
 app.get("/users/dashboard", (req, res) => {
   let { email } = req.query;
-  res.render("dashboard.ejs", { user: email});
+  res.render("dashboard.ejs", { user: email });
 });
 
 // app.get("/users/location", checkNotAuthenticated, (req, res) => {
@@ -181,7 +181,6 @@ app.get("/users/dashboard", (req, res) => {
 app.get("/users/favorite", (req, res) => {
   // var str = '';
 
-
   let { email } = req.query;
 
   //wsID count each id that is in favorite
@@ -195,7 +194,7 @@ app.get("/users/favorite", (req, res) => {
         throw err;
       }
       //change object into value and insert each value into wsID array
-      for(i = 0; i < results.rowCount; i++){
+      for (i = 0; i < results.rowCount; i++) {
         console.log(i);
         var result = Object.values(results.rows[i]);
         wsID.push(result[1]);
@@ -203,10 +202,10 @@ app.get("/users/favorite", (req, res) => {
       console.log(wsID);
 
       //use wsID as an identifier to select the correct instance from workspace db
-      for(z = 0; z < wsID.length; z++){
+      for (z = 0; z < wsID.length; z++) {
         pool.query(
           //select all workspace that has a matching id
-        `SELECT * FROM public."workspace"
+          `SELECT * FROM public."workspace"
           WHERE workspaceid = $1`,
           [wsID[z]],
           (err, results) => {
@@ -229,7 +228,7 @@ app.get("/users/favorite", (req, res) => {
 
 //app.get("/users/profile", checkNotAuthenticated, (req, res) => {
 app.get("/users/profile", (req, res) => {
-  res.render("profile.ejs",);
+  res.render("profile.ejs");
 });
 
 //app.get("/users/profileManage/changeEmail", checkNotAuthenticated, (req, res) => {
@@ -243,7 +242,7 @@ app.get("/users/profileManage/changePassword", (req, res) => {
 
 app.get("/users/profileManage/passwordReset/:email", (req, res) => {
   // console.log(req.isAuthenticated());
-  res.render("profileManage/passwordReset.ejs", {email : req.params.email});
+  res.render("profileManage/passwordReset.ejs", { email: req.params.email });
 });
 
 //app.get("/users/profileManage/changeUsername", checkNotAuthenticated, (req, res) => {
@@ -301,15 +300,17 @@ app.post("/users/forgotPassword", async (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("forgotPassword.ejs", { errors, email});
-  }
-  else{
-      // Validation passed, proceed to send password reset email with link to the reset page.
-      transporter.sendMail({from:"prayforchulatinder@gmail.com",
-                            to: email,
-                            subject:"Findspace Password reset",
-                            html: `<h1>Click the link below to change your password!</h1><a href="http://localhost:3000/users/profileManage/changePassword/${email}">LINK</a>`
-                          }, function(error, info){
+    // res.render("forgotPassword.ejs", { errors, email });
+  } else {
+    // Validation passed, proceed to send password reset email with link to the reset page.
+    transporter.sendMail(
+      {
+        from: "prayforchulatinder@gmail.com",
+        to: email,
+        subject: "Findspace Password reset",
+        html: `<h1>Click the link below to change your password!</h1><a href="http://localhost:3000/users/profileManage/changePassword/${email}">LINK</a>`,
+      },
+      function (error, info) {
         if (error) {
           console.log(error);
         } else {
@@ -325,27 +326,30 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
   let { password, password2, email } = req.query;
   let errors = [];
 
-  console.log({
-    password,
-    password2,
-  });
-  //validate that the input is valid
-  if (!password || !password2) {
-    errors.push({ message: "Please enter all fields" });
-  }
+  // console.log({
+  //   password,
+  //   password2,
+  // });
+  // //validate that the input is valid
+  // if (!password || !password2) {
+  //   errors.push({ message: "Please enter all fields" });
+  // }
 
-  if (password.length < 6) {
-    errors.push({ message: "Password must be a least 6 characters long" });
-  }
+  // if (password.length < 6) {
+  //   errors.push({ message: "Password must be a least 6 characters long" });
+  // }
 
-  if (password !== password2) {
-    errors.push({ message: "Passwords do not match" });
-  }
+  // if (password !== password2) {
+  //   errors.push({ message: "Passwords do not match" });
+  // }
 
   if (errors.length > 0) {
-    res.render("profileManage/changePassword.ejs", { errors, password, password2 });
-  } 
-  else {
+    // res.render("profileManage/changePassword.ejs", {
+    //   errors,
+    //   password,
+    //   password2,
+    // });
+  } else {
     //hash the password
     hashedPassword = await bcrypt.hash(password, 10);
     console.log(hashedPassword);
@@ -363,8 +367,9 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
         }
         console.log("reaches here");
         console.log(results);
-        req.flash("success_msg", "Your password has been updated!");
-        res.redirect("/users/profile");
+        res.json("changed");
+        // req.flash("success_msg", "Your password has been updated!");
+        // res.redirect("/users/profile");
       }
     );
   }
@@ -392,9 +397,12 @@ app.post("/users/profileManage/passwordReset/", async (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("profileManage/changePassword.ejs", { errors, password, password2 });
-  } 
-  else {
+    // res.render("profileManage/changePassword.ejs", {
+    //   errors,
+    //   password,
+    //   password2,
+    // });
+  } else {
     hashedPassword = await bcrypt.hash(password, 10);
     console.log(hashedPassword);
     // Validation passed
@@ -410,8 +418,8 @@ app.post("/users/profileManage/passwordReset/", async (req, res) => {
         }
         console.log("reaches here");
         console.log(results);
-        req.flash("success_msg", "Your password has been updated!");
-        res.redirect("/users/profile");
+        // req.flash("success_msg", "Your password has been updated!");
+        // res.redirect("/users/profile");
       }
     );
   }
@@ -430,7 +438,7 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("profileManage/changeUsername.ejs", { errors, name });
+    // res.render("profileManage/changeUsername.ejs", { errors, name });
   } else {
     // Validation passed
     pool.query(
@@ -465,7 +473,7 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("profileManage/changeEmail.ejs", { errors, email });
+    // res.render("profileManage/changeEmail.ejs", { errors, email });
   } else {
     // Validation passed
     pool.query(
@@ -481,9 +489,9 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
 
         if (results.rows.length > 0) {
           console.log("Email is already registered");
-          return res.render("profileManage/changeEmail", {
-            message: "Email already registered",
-          });
+          // return res.render("profileManage/changeEmail", {
+          //   message: "Email already registered",
+          // });
         } else {
           //outdated variable, temp is use because when the email is change the passportconfig.js cant update the session user information to match and error happens
           //but since passportconfig is no longer use replacing it with email maybe fine (but im gonna leave it like this)
@@ -501,8 +509,8 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
               }
               console.log("reaches here");
               console.log(results);
-              req.flash("success_msg", "Your email has been updated!");
-              res.render("index");
+              // req.flash("success_msg", "Your email has been updated!");
+              // res.render("index");
             }
           );
         }
@@ -546,9 +554,8 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("profileManage/deleteUser.ejs", { errors, password});
-  } 
-  else {
+    // res.render("profileManage/deleteUser.ejs", { errors, password });
+  } else {
     //validation pass
     req.logout();
     //logout to prevent an error by passportconfig tracking non existing user
@@ -562,8 +569,8 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
         }
         console.log("reaches here");
         console.log(results);
-        req.flash("success_msg", "Your account has been succesfully deleted.");
-        res.render("index");
+        // req.flash("success_msg", "Your account has been succesfully deleted.");
+        // res.render("index");
       }
     );
   }
@@ -594,7 +601,7 @@ app.post("/users/register", async (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("register", { errors, name, email, password, password2 });
+    // res.render("register", { errors, name, email, password, password2 });
   } else {
     //hash the password
     hashedPassword = await bcrypt.hash(password, 10);
@@ -612,9 +619,9 @@ app.post("/users/register", async (req, res) => {
         console.log(results.rows);
         //if found
         if (results.rows.length > 0) {
-          return res.render("register", {
-            message: "Email already registered",
-          });
+          // return res.render("register", {
+          //   message: "Email already registered",
+          // });
         } else {
           //query insert new user normally with default type of normal user
           pool.query(
@@ -669,7 +676,7 @@ app.post("/users/login", async (req, res) => {
           }
           if (isMatch) {
             //password is correct
-            res.json("matched");
+            res.json(results.rows);
             // return ("matched");
             //...
           } else {
