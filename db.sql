@@ -106,7 +106,3 @@ INSERT INTO public.workspace(
 
 
 
-	SELECT H.workspaceid, H.suminout, W.totalseat, W.workspaceid, H.suminout/W.totalseat AS crowdedness, 
-	CASE WHEN H.suminout/W.totalseat<=0.25 THEN 1 
-	WHEN H.suminout/W.totalseat>0.25 AND H.suminout/W.totalseat <= 0.5 THEN 3 
-	ELSE 5 END AS crowdednessStatus FROM ( SELECT workspaceid, sum(num_in_out) AS suminout FROM hardware H GROUP BY workspaceid ) AS H, ( SELECT workspaceid, totalseat FROM workspace W ) AS W WHERE H.workspaceid = W.workspaceid AND H.workspaceid = $1
