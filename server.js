@@ -669,6 +669,38 @@ app.post("/users/login", async (req, res) => {
   );
 });
 
+// get status from email
+
+app.get("/premium/:email", async (req, res) => {
+  try {
+    const { email } = req.params;
+    const Status = await pool.query(
+        "SELECT status FROM premium WHERE email = $1", 
+        [email]
+    );
+    res.json(Status.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+// update user status by email
+
+app.put("/premium/:email", async (req, res) => {
+  try {
+      const { email } = req.params;
+      const { status } = req.query;
+      const updatePremiumStatus = await pool.query(
+      "UPDATE premium SET status = $1 WHERE email = $2",
+      [status, email]
+      );
+      res.json("User premium status was updated!");
+  } catch (err) {
+      console.error(err.message);
+  }
+});
+
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -34,6 +34,20 @@ ORDER BY crowdednessStatus ASC
 
 
 
+SELECT R1.workspaceid, R2.workspaceid,R2.wsname, R1.ppl_in_WS, R2.totalseat, (R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT) AS crowdedness, 
+CASE WHEN (R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT)<=0.25 THEN 1 
+WHEN ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT)>0.25) AND ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT) <= 0.4) THEN 2.4 
+WHEN ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT)>0.4) AND ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT) <= 0.6) THEN 3.6 
+ELSE 5 END AS crowdednessStatus FROM 
+	( SELECT DISTINCT workspaceid, SUM(H.num_in_out) AS ppl_in_WS 
+	FROM hardware H GROUP BY workspaceid) AS R1,
+	( SELECT DISTINCT * FROM workspace WS) AS R2 
+WHERE R1.workspaceid = R2.workspaceid AND R1.workspaceid = $1 
+ORDER BY crowdednessStatus ASC
+
+
+
+
 -- trigger add to ws_oh
 CREATE FUNCTION add_to_wsoh() RETURNS trigger AS $add_to_wsoh$
 	BEGIN
