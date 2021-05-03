@@ -13,10 +13,10 @@ CREATE TABLE Workspace(
 
 
 -- Arrange WS order by crowdednessStatus
-SELECT R1.workspaceid, R2.workspaceid,R2.wsname, R2.ws_lat, R2.ws_long, R1.ppl_in_WS, R2.totalseat, R1.ppl_in_WS/R2.totalseat AS crowdedness, R3.photo1, R3.photo2, R3.photo3, R4.feedbacktime, R4.feedbackstatus,
-CASE WHEN R1.ppl_in_WS/R2.totalseat<=0.25 THEN 1
-WHEN R1.ppl_in_WS/R2.totalseat>0.25 AND R1.ppl_in_WS/R2.totalseat <= 0.4 THEN 2.4
-WHEN R1.ppl_in_WS/R2.totalseat>0.4 AND R1.ppl_in_WS/R2.totalseat <= 0.6 THEN 3.6
+SELECT R1.workspaceid, R2.workspaceid,R2.wsname, R2.ws_lat, R2.ws_long, R1.ppl_in_WS, R2.totalseat, (R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT) AS crowdedness, R3.photo1, R3.photo2, R3.photo3, R4.feedbacktime, R4.feedbackstatus,
+CASE WHEN (R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT)<=0.25 THEN 1
+WHEN ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT)>0.25) AND ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT) <= 0.4) THEN 2.4
+WHEN ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT)>0.4) AND ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT) <= 0.6) THEN 3.6
 ELSE 5
 END AS crowdednessStatus
 FROM ( SELECT DISTINCT workspaceid, SUM(H.num_in_out) AS ppl_in_WS 
@@ -103,3 +103,10 @@ EXECUTE PROCEDURE add_to_givesfeedback();
 INSERT INTO public.workspace(
 	wsname, ws_des, poweroutlet, wifi, totalseat, ws_link,  ws_lat, ws_long)
 	VALUES ('f', 'f', 45, true, 100, 'kk',  31, 9);
+
+
+
+	SELECT H.workspaceid, H.suminout, W.totalseat, W.workspaceid, H.suminout/W.totalseat AS crowdedness, 
+	CASE WHEN H.suminout/W.totalseat<=0.25 THEN 1 
+	WHEN H.suminout/W.totalseat>0.25 AND H.suminout/W.totalseat <= 0.5 THEN 3 
+	ELSE 5 END AS crowdednessStatus FROM ( SELECT workspaceid, sum(num_in_out) AS suminout FROM hardware H GROUP BY workspaceid ) AS H, ( SELECT workspaceid, totalseat FROM workspace W ) AS W WHERE H.workspaceid = W.workspaceid AND H.workspaceid = $1

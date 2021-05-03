@@ -261,20 +261,6 @@ route.put("/pic/menu3/:WorkspaceID", async (req, res) => {
     }
 });
 
-// add new ophours to a workspace
-route.post("/ophour", async (req, res) => {
-    try {
-      const { WorkspaceID , mon , tue , wed , thu , fri , sat , sun } = req.query;
-      const newOphour = await pool.query(
-        "INSERT INTO ws_oh ( WorkspaceID , mon , tue , wed , thu , fri , sat , sun ) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
-        [ WorkspaceID , mon , tue , wed , thu , fri , sat , sun]
-      );
-      console.log(req.query);
-    } catch (err) {
-      console.error(err.message);
-    }
-});
-
 // update time on monday
 route.put("/ophour/mon/:WorkspaceID", async (req, res) => {
     try {
