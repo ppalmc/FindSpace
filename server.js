@@ -160,20 +160,27 @@ app.get("/users/favorite", (req, res) => {
       console.log(wsID);
 
       //use wsID as an identifier to select the correct instance from workspace db
-      for (z = 0; z < wsID.length; z++) {
-        pool.query(
-          //select all workspace that has a matching id
-          `SELECT * FROM public."workspace"
-          WHERE workspaceid = $1`,
-          [wsID[z]],
-          (err, results) => {
-            if (err) {
-              throw err;
-            }
-            res.render("favorite.ejs", { location: results.rows });
+      // for (z = 0; z < wsID.length; z++) {
+      pool.query(
+        //select all workspace that has a matching id
+        `SELECT * FROM public."workspace"
+          WHERE workspaceid = ANY ($1)`,
+        [wsID],
+        (err, results) => {
+          if (err) {
+            throw err;
           }
-        );
-      }
+          // for(x = 0; x < results.rowCount; x++){
+          //   console.log(x);
+          //   var result = Object.values(results.rows[x]);
+          //   str = str + '\n'+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'\n'+'|';
+          // }
+          // console.log(str);
+          res.json(results.rows);
+          // res.render("favorite.ejs", { location: results.rows });
+        }
+      );
+      // }
     }
   );
 });
