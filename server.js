@@ -80,11 +80,13 @@ app.put("/gives_feedback/:workspaceID", async (req, res) => {
     const { feedbacktime, feedbackstatus, email } = req.query;
     const newfeedback = await pool.query(
       "UPDATE gives_feedback SET feedbacktime = $1 , feedbackstatus = $2 , email = $3 WHERE WorkspaceID = $4",
-      [ feedbacktime, feedbackstatus, email, workspaceID]
+      [feedbacktime, feedbackstatus, email, workspaceID]
     );
     console.log(req.query);
+    res.json("OK");
   } catch (err) {
     console.error(err.message);
+    res.json("Cannot update feedback");
   }
 });
 
@@ -618,6 +620,7 @@ app.post("/users/register", async (req, res) => {
         console.log(results.rows);
         //if found
         if (results.rows.length > 0) {
+          res.json("Email registered");
           // return res.render("register", {
           //   message: "Email already registered",
           // });
@@ -634,8 +637,9 @@ app.post("/users/register", async (req, res) => {
               }
               console.log("reaches here");
               console.log(results.rows);
-              req.flash("success_msg", "You are now registered. Please log in");
-              res.redirect("/users/login");
+              // req.flash("success_msg", "You are now registered. Please log in");
+              // res.redirect("/users/login");
+              res.json("Account Created");
             }
           );
         }
@@ -665,6 +669,7 @@ app.post("/users/login", async (req, res) => {
         throw err;
       }
       console.log(results.rows);
+      console.log("");
       //if found the email in db
       if (results.rows.length > 0) {
         const user = results.rows[0];
@@ -675,6 +680,9 @@ app.post("/users/login", async (req, res) => {
           }
           if (isMatch) {
             //password is correct
+            // console.log("results");
+            // console.log(results);
+            // console.log(results.rows);
             res.json(results.rows);
             // return ("matched");
             //...
