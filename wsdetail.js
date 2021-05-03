@@ -11,13 +11,7 @@ route.use(express.json()); //req.query
 
 
 //ROUTES//
-
-// route.set('view engine','ejs');
 route.use(bp.urlencoded({extended:true}));
-
-
-
-
 
 // show menu of a workspace
 route.get("/showmenu/:WorkspaceID", async (req, res) => {
@@ -91,19 +85,5 @@ route.get("/crowdedness/:workspaceID", async (req, res) => {
     console.error(err.message);
   }
 });
-
-
-         
-
-
-//get feedback function
-async function getFeedBack(){
-    try {
-        const feedback = await pool.query("SELECT feedbacktime, feedbackstatus, workspaceid FROM gives_feedback");
-        return feedback;
-    } catch (err) {
-        return err.message;
-    }
-};
 
 module.exports = route

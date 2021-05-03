@@ -134,49 +134,6 @@ app.get("/users/dashboard", (req, res) => {
   res.render("dashboard.ejs", { user: email});
 });
 
-// app.get("/users/location", checkNotAuthenticated, (req, res) => {
-//   // console.log(req.isAuthenticated());
-//   let locationID = req.query;
-//   pool.query(
-//     `SELECT * FROM public."workspace"
-//       WHERE $1 = workspaceID`,
-//       [locationID],
-//       (err, results) => {
-//         if (err) {
-//           throw err;
-//         }
-//           console.log("reaches here");
-//           console.log(results);
-//           for(x = 0; x < results.rowCount; x++){
-//             console.log(x);
-//             var result = Object.values(results.rows[x]);
-//             str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
-//           }
-//           res.render("location.ejs");
-//       }
-//   )
-// });
-
-//app.get("/users/home", checkNotAuthenticated, (req, res) => {
-// app.get("/users/home", (req, res) => {
-//   // var str = '';
-
-//   pool.query(
-//   `SELECT * FROM public."workspace"`,
-//     (err, results) => {
-//       if (err) {
-//         throw err;
-//       }
-//       // for(x = 0; x < results.rowCount; x++){
-//       //   console.log(x);
-//       //   var result = Object.values(results.rows[x]);
-//       //   str = str+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'|\n';
-//       // }
-//       res.render('home.ejs', {location : results.rows, count : results.rowCount});
-//     }
-//   )
-// });
-
 //app.get("/users/favorite", checkNotAuthenticated, (req, res) => {
 app.get("/users/favorite", (req, res) => {
   // var str = '';
@@ -213,12 +170,6 @@ app.get("/users/favorite", (req, res) => {
             if (err) {
               throw err;
             }
-            // for(x = 0; x < results.rowCount; x++){
-            //   console.log(x);
-            //   var result = Object.values(results.rows[x]);
-            //   str = str + '\n'+result[0]+','+result[1]+','+result[2]+','+result[3]+','+result[4]+','+result[5]+','+result[6]+'\n'+'|';
-            // }
-            // console.log(str);
             res.render("favorite.ejs", { location: results.rows });
           }
         );
@@ -638,15 +589,6 @@ app.post("/users/register", async (req, res) => {
   }
 });
 
-// app.post(
-//   "/users/login",
-//   passport.authenticate("local", {
-//     successRedirect: "/users/dashboard",
-//     failureRedirect: "/users/login",
-//     failureFlash: true
-//   })
-// );
-
 app.post("/users/login", async (req, res) => {
   //recieve user input of email and password
   let { email, password } = req.query;
@@ -687,20 +629,6 @@ app.post("/users/login", async (req, res) => {
     }
   );
 });
-
-// function checkAuthenticated(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     return res.redirect("/users/dashboard");
-//   }
-//   next();
-// }
-
-// function checkNotAuthenticated(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     return next();
-//   }
-//   res.redirect("/users/login");
-// }
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

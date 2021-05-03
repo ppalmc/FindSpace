@@ -27,7 +27,6 @@ route.get('/recommWS', async (req,res) => {
     }
 })
 
-
 function measure(lat1, lon1, lat2, lon2){  // generally used geo measurement function
     var R = 6378.137; // Radius of earth in KM
     var dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
@@ -47,8 +46,5 @@ function sortJSON(arr, key, asc) {
         else { return ((x > y) ? -1 : ((x < y) ? 1 : 0)); }
     });
 }
-
-// no needs to send http request every 2 seconds (may cause delay)
-// https://stackoverflow.com/questions/35024814/nodejs-auto-refresh-view-after-database-updates
 
 module.exports = route
