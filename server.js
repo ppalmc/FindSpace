@@ -224,7 +224,8 @@ app.get("/users/logout", (req, res) => {
   res.render("index", { message: "You have logged out successfully" });
 });
 
-app.post("/users/home", async (req, res) => {
+//add favorite record
+app.post("/users/favorite", async (req, res) => {
   //recieve wsID that needs to be favorite as heart variable
   let { heart } = req.query;
 
@@ -246,6 +247,23 @@ app.post("/users/home", async (req, res) => {
     }
   );
 });
+
+//delete user's favorite record 
+app.delete("/user/favorite", async (req, res) => {
+  try {
+    const { email } = req.query.email;
+    const { WorkspaceID } = req.query.WorkspaceID;
+
+    const deleteFavorite = await pool.query(
+        "DELETE FROM favorite WHERE WorkspaceID = $1 AND email = $2", 
+        [ WorkspaceID , email ]
+    );
+    res.json("Favorite record was deleted!");
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
 
 app.post("/users/forgotPassword", async (req, res) => {
   let { email } = req.query;
