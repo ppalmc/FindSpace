@@ -674,11 +674,11 @@ app.post("/users/login", async (req, res) => {
 app.get("/premium/:email", async (req, res) => {
   try {
     const { email } = req.params;
-    const Status = await pool.query(
-        "SELECT status FROM premium WHERE email = $1", 
+    const premiumstatus = await pool.query(
+        "SELECT premiumstatus FROM premium WHERE email = $1", 
         [email]
     );
-    res.json(Status.rows);
+    res.json(premiumstatus.rows);
   } catch (err) {
     console.error(err.message);
   }
@@ -689,12 +689,12 @@ app.get("/premium/:email", async (req, res) => {
 app.put("/premium/:email", async (req, res) => {
   try {
       const { email } = req.params;
-      const { status } = req.query;
+      const { premiumstatus } = req.query;
       const updatePremiumStatus = await pool.query(
-      "UPDATE premium SET status = $1 WHERE email = $2",
-      [status, email]
+      "UPDATE premium SET premiumstatus = $1 WHERE email = $2",
+      [premiumstatus, email]
       );
-      res.json("User premium status was updated!");
+      res.json("User premiumstatus was updated!");
   } catch (err) {
       console.error(err.message);
   }
