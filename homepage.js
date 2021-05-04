@@ -6,8 +6,10 @@ const route = express.Router();
 // get request for display WS in recommended order
 route.get("/recommWS", async (req, res) => {
   try {
-    const current_lat = req.query.Lat;
-    const current_long = req.query.Long;
+    // const current_lat = req.query.Lat;
+    // const current_long = req.query.Long;
+    const current_lat = 13.735936;
+    const current_long = 100.532823;
     const inrangeWS = [];
     const allWorkspace = await (
       await pool.query(
@@ -26,6 +28,7 @@ route.get("/recommWS", async (req, res) => {
         inrangeWS.push(allWorkspace[i]);
       }
     }
+    console.log(inrangeWS);
     for (i in inrangeWS) {
       inrangeWS[i]["score"] =
         inrangeWS[i].distance * inrangeWS[i].crowdednessstatus;
@@ -35,6 +38,15 @@ route.get("/recommWS", async (req, res) => {
   } catch (err) {
     console.error(err.message);
   }
+  //     for (i in inrangeWS) {
+  //       inrangeWS[i]["score"] =
+  //         inrangeWS[i].distance * inrangeWS[i].crowdednessstatus;
+  //     }
+  //     sortJSON(inrangeWS, "score", true);
+  //     res.json(inrangeWS);
+  //   } catch (err) {
+  //     console.error(err.message);
+  //   }
 });
 
 function measure(lat1, lon1, lat2, lon2) {

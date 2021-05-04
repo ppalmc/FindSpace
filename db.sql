@@ -120,3 +120,15 @@ INSERT INTO public.workspace(
 
 
 
+CREATE FUNCTION add_to_premium() RETURNS trigger AS $add_to_premium$
+	BEGIN
+		insert into premium (email,premiumstatus)
+		values (NEW.email, 'regular' );
+                RETURN NEW;
+    END;
+$add_to_premium$ LANGUAGE plpgsql;
+
+CREATE TRIGGER new_user_add_premium
+AFTER INSERT ON public."user"
+FOR EACH ROW
+EXECUTE PROCEDURE add_to_premium();
