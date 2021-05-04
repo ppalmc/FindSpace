@@ -12,7 +12,7 @@ route.get('/recommWS', async (req,res) => {
         const allWorkspace = await (await pool.query("SELECT R1.workspaceid, R2.workspaceid,R2.wsname, R2.ws_lat, R2.ws_long, R1.ppl_in_WS, R2.totalseat, (R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT) AS crowdedness, R3.photo1, R3.photo2, R3.photo3, R4.feedbacktime, R4.feedbackstatus, CASE WHEN (R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT)<=0.25 THEN 1 WHEN ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT)>0.25) AND ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT) <= 0.4) THEN 2.4 WHEN ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT)>0.4) AND ((R1.ppl_in_WS::FLOAT/R2.totalseat::FLOAT) <= 0.6) THEN 3.6 ELSE 5 END AS crowdednessStatus FROM ( SELECT DISTINCT workspaceid, SUM(H.num_in_out) AS ppl_in_WS FROM hardware H GROUP BY workspaceid) AS R1,( SELECT DISTINCT * FROM workspace WS) AS R2,( SELECT DISTINCT * FROM ws_photo) AS R3,( SELECT DISTINCT * FROM gives_feedback) AS R4 WHERE R1.workspaceid = R2.workspaceid AND R1.workspaceid = R3.workspaceid AND R1.workspaceid = R4.workspaceid ORDER BY crowdednessStatus ASC")).rows
         for (i in allWorkspace) {
             distance = measure(allWorkspace[i].ws_lat,allWorkspace[i].ws_long,current_lat,current_long)
-            if (distance <= 500) {
+            if (distance <= 10000) {
                 allWorkspace[i]['distance'] = distance
                 inrangeWS.push(allWorkspace[i])
             }
