@@ -149,7 +149,8 @@ app.get("/users/favorite", (req, res) => {
     [email],
     (err, results) => {
       if (err) {
-        throw err;
+        // throw err;
+        res.json("error");
       }
       //change object into value and insert each value into wsID array
       for (i = 0; i < results.rowCount; i++) {
@@ -168,7 +169,8 @@ app.get("/users/favorite", (req, res) => {
         [wsID],
         (err, results) => {
           if (err) {
-            throw err;
+            // throw err;
+            res.json("error");
           }
           // for(x = 0; x < results.rowCount; x++){
           //   console.log(x);
@@ -227,11 +229,8 @@ app.get("/users/logout", (req, res) => {
 //add favorite record
 app.post("/users/favorite", async (req, res) => {
   //recieve wsID that needs to be favorite as heart variable
-  let { heart } = req.query;
+  let { email, heart } = req.query;
 
-  console.log({
-    email,
-  });
   pool.query(
     //insert new worksapce into favorite
     `INSERT INTO public."favorite" (email, workspaceid)
@@ -239,31 +238,47 @@ app.post("/users/favorite", async (req, res) => {
     [email, heart],
     (err, results) => {
       if (err) {
-        throw err;
+        // throw err;
+        res.json("error");
       }
       console.log("reaches here");
       console.log(results);
-      req.flash("success_msg", "Your favorite place has been updated!");
+      req.json("Favorite updated");
+      // req.flash("success_msg", "Your favorite place has been updated!");
     }
   );
 });
 
-//delete user's favorite record 
+//delete user's favorite record
 app.delete("/user/favorite", async (req, res) => {
   try {
-    const { email } = req.query.email;
-    const { WorkspaceID } = req.query.WorkspaceID;
+    const email = req.query.email;
+    const WorkspaceID = req.query.WorkspaceID;
+    console.log("req.query");
+    console.log(req.query);
+    console.log(req.query.email);
+    console.log(req.query.WorkspaceID);
+    console.log(email);
+    console.log(WorkspaceID);
 
     const deleteFavorite = await pool.query(
-        "DELETE FROM favorite WHERE WorkspaceID = $1 AND email = $2", 
-        [ WorkspaceID , email ]
+      "DELETE FROM favorite WHERE WorkspaceID = $1 AND email = $2",
+      [WorkspaceID, email],
+      (err, result) => {
+        if (err) {
+          console.log("err");
+          console.log(err);
+        }
+        console.log("result");
+        console.log(result);
+      }
     );
     res.json("Favorite record was deleted!");
   } catch (err) {
     console.log(err.message);
+    res.json("Cannot delete");
   }
 });
-
 
 app.post("/users/forgotPassword", async (req, res) => {
   let { email } = req.query;
@@ -340,7 +355,8 @@ app.post("/users/profileManage/changePassword", async (req, res) => {
       [hashedPassword, email],
       (err, results) => {
         if (err) {
-          throw err;
+          // throw err;
+          res.json("error");
         }
         console.log("reaches here");
         console.log(results);
@@ -391,7 +407,8 @@ app.post("/users/profileManage/passwordReset/", async (req, res) => {
       [hashedPassword, email],
       (err, results) => {
         if (err) {
-          throw err;
+          // throw err;
+          res.json("error");
         }
         console.log("reaches here");
         console.log(results);
@@ -426,12 +443,14 @@ app.post("/users/profileManage/changeUsername", async (req, res) => {
       [name, email],
       (err, results) => {
         if (err) {
-          throw err;
+          // throw err;
+          res.json("error");
         }
         console.log("reaches here");
         console.log(results);
-        req.flash("success_msg", "Your username has been updated!");
-        res.redirect("/users/profile");
+        res.json("Username changed");
+        // req.flash("success_msg", "Your username has been updated!");
+        // res.redirect("/users/profile");
       }
     );
   }
@@ -482,7 +501,8 @@ app.post("/users/profileManage/changeEmail", async (req, res) => {
             [newEmail, temp],
             (err, results) => {
               if (err) {
-                throw err;
+                // throw err;
+                res.json("error");
               }
               console.log("reaches here");
               console.log(results);
@@ -508,7 +528,8 @@ app.post("/users/profileManage/changeType", async (req, res) => {
     [type, email],
     (err, results) => {
       if (err) {
-        throw err;
+        // throw err;
+        res.json("error");
       }
       console.log("reaches here");
       console.log(results);
@@ -542,10 +563,12 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
       [email],
       (err, results) => {
         if (err) {
-          throw err;
+          // throw err;
+          res.json("error");
         }
         console.log("reaches here");
         console.log(results);
+        req.json("User deleted");
         // req.flash("success_msg", "Your account has been succesfully deleted.");
         // res.render("index");
       }
@@ -609,7 +632,8 @@ app.post("/users/register", async (req, res) => {
             [name, email, hashedPassword, "user"],
             (err, results) => {
               if (err) {
-                throw err;
+                // throw err;
+                res.json("error");
               }
               console.log("reaches here");
               console.log(results.rows);
@@ -633,7 +657,8 @@ app.post("/users/login", async (req, res) => {
     [email],
     (err, results) => {
       if (err) {
-        throw err;
+        // throw err;
+        res.json("error");
       }
       console.log(results.rows);
       console.log("");
@@ -643,7 +668,7 @@ app.post("/users/login", async (req, res) => {
         //check the password to see if it matches the store hashed password
         bcrypt.compare(password, user.pwd, (err, isMatch) => {
           if (err) {
-            res.sendStatus(500);
+            res.json("Try again later");
           }
           if (isMatch) {
             //password is correct
@@ -655,7 +680,7 @@ app.post("/users/login", async (req, res) => {
             //...
           } else {
             //password is incorrect
-            res.json("password incorrect");
+            res.json("Password incorrect");
             //...
           }
         });
@@ -663,7 +688,7 @@ app.post("/users/login", async (req, res) => {
         // No user
         console.log("no user found");
         //...
-        res.json("no user found");
+        res.json("No user found");
       }
     }
   );
@@ -675,8 +700,8 @@ app.get("/premium/:email", async (req, res) => {
   try {
     const { email } = req.params;
     const Status = await pool.query(
-        "SELECT status FROM premium WHERE email = $1", 
-        [email]
+      "SELECT status FROM premium WHERE email = $1",
+      [email]
     );
     res.json(Status.rows);
   } catch (err) {
@@ -688,18 +713,17 @@ app.get("/premium/:email", async (req, res) => {
 
 app.put("/premium/:email", async (req, res) => {
   try {
-      const { email } = req.params;
-      const { status } = req.query;
-      const updatePremiumStatus = await pool.query(
+    const { email } = req.params;
+    const { status } = req.query;
+    const updatePremiumStatus = await pool.query(
       "UPDATE premium SET status = $1 WHERE email = $2",
       [status, email]
-      );
-      res.json("User premium status was updated!");
+    );
+    res.json("User premium status was updated!");
   } catch (err) {
-      console.error(err.message);
+    console.error(err.message);
   }
 });
-
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
