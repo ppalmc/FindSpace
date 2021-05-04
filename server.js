@@ -243,7 +243,7 @@ app.post("/users/favorite", async (req, res) => {
       }
       console.log("reaches here");
       console.log(results);
-      req.json("Favorite updated");
+      res.json("Favorite updated");
       // req.flash("success_msg", "Your favorite place has been updated!");
     }
   );
@@ -568,7 +568,7 @@ app.post("/users/profileManage/deleteUser", async (req, res) => {
         }
         console.log("reaches here");
         console.log(results);
-        req.json("User deleted");
+        res.json("User deleted");
         // req.flash("success_msg", "Your account has been succesfully deleted.");
         // res.render("index");
       }
